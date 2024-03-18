@@ -296,8 +296,6 @@ public class MainTask : MonoBehaviour
                     current_condition = condition_list[0];
                     CorrectTargetCurrentPosition = target_positions[current_condition];
 
-                    Debug.Log($"SELECTED position {CorrectTargetCurrentPosition}");
-
                     // Picking first time from the timing list to select epoch durations in this trial
                     FREE_duration = FREE_timing[FREE_timing_list[0]];
                     DELAY_duration = DELAY_timing[DELAY_timing_list[0]];
@@ -452,7 +450,7 @@ public class MainTask : MonoBehaviour
                     // Change target material (juicy mat is grey ball)
                     for (int i = 0; i < targets.Length; i++)
                     {
-                        if (targets[i].name == player.GetComponent<Movement>().CollidedObjectName)
+                        if (targets[i].name == player.GetComponent<Movement>().CollidedObject.name)
                         {
                             changeTargetMaterial(targets[i], juicy_mat);
                         }
@@ -495,24 +493,24 @@ public class MainTask : MonoBehaviour
                     // Change target material (eaten mat is white ball)
                     for (int i = 0; i < targets.Length; i++)
                     {
-                        if (targets[i].name == player.GetComponent<Movement>().CollidedObjectName)
+                        if (targets[i].name == player.GetComponent<Movement>().CollidedObject.name)
                         {
-                            changeTargetMaterial(targets[i], juicy_mat);
+                            changeTargetMaterial(targets[i], eaten_mat);
                         }
                     }
 
                     // Check if collided object is the correct one
-                    if (player.GetComponent<Movement>().CollidedObjectPosition == CorrectTargetCurrentPosition)
+                    if (player.GetComponent<Movement>().CollidedObject.transform.position == CorrectTargetCurrentPosition)
                     {
                         current_state = 99;
                         Debug.Log("CORRECT TARGET");
                     }
                     else
                     {
-                        error_state = $"ERR: Selected target at {player.GetComponent<Movement>().CollidedObjectPosition} but correct position: {CorrectTargetCurrentPosition}";
+                        error_state = $"ERR: Selected target at {player.GetComponent<Movement>().CollidedObject.transform.position} but correct position: {CorrectTargetCurrentPosition}";
                         current_state = -99;
                     }
-                       
+
                 }
                 #endregion
 
@@ -567,9 +565,8 @@ public class MainTask : MonoBehaviour
                 if (last_state != current_state)
                 {
 
-                    //Debug.Log("TRIAL DONE");
-                    //identifier = "Dummy for debugging";
-                    //GetComponent<Saver>().addObjectEnd(identifier);
+                    Debug.Log("TRIAL DONE");
+                    GetComponent<Saver>().addObjectEnd(player.GetComponent<Movement>().CollidedObject.name);
 
                     reset_win();
 
