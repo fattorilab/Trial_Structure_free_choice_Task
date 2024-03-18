@@ -132,8 +132,8 @@ public class MainTask : MonoBehaviour
         first_frame = true;
 
         // States
-        current_state = -1;
-        last_state = -1;
+        current_state = -2;
+        last_state = -2;
         error_state = "";
 
         // Trials
@@ -153,13 +153,9 @@ public class MainTask : MonoBehaviour
         camL = GameObject.Find("Left Camera").GetComponent<Camera>();
         camR = GameObject.Find("Right Camera").GetComponent<Camera>();
 
-        #region PUPIL MANAGEMENT
-        /*
+        // PupilLab
         PupilDataStreamScript = GameObject.Find("PupilDataManagment").GetComponent<PupilDataStream>();
         RequestControllerScript = GameObject.Find("PupilDataManagment").GetComponent<RequestController>();
-        RequestControllerScript.connectOnEnable = pupilconnection;
-        */
-        #endregion
 
         // Import targets coordinates from csv file into target_positions list
         // and initiate the targets in a disable state (i.e invisible)
@@ -167,9 +163,6 @@ public class MainTask : MonoBehaviour
 
         // Define number of trials per each target
         trials_for_target = new int[target_positions.Count];
-
-        // Save target settings (????)
-        GetComponent<Saver>().addObject("Target_Setting: Custom", "Setting", 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
         // Generate condition and timing vectors
         condition_list = CreateRandomSequence(target_positions.Count, trials_for_cond * target_positions.Count);
@@ -184,22 +177,6 @@ public class MainTask : MonoBehaviour
     void Update()
     {
         frame_number++;
-
-        #region PUPIL MANAGEMENT
-        /* serve ancora ?
-        PupilDataConnessionStatus = PupilDataStreamScript.subsCtrl.IsConnected;
-
-        if (PupilDataConnessionStatus)
-        {
-            //Debug.Log((centerRightPupilPx[0]).ToString());
-            centerRightPupilPx = PupilDataStreamScript.CenterRightPupilPx;
-            centerLeftPupilPx = PupilDataStreamScript.CenterLeftPupilPx;
-            diameterRight = PupilDataStreamScript.DiameterRight;
-            diameterLeft = PupilDataStreamScript.DiameterLeft;
-            ardu.SendPupilLabData(centerRightPupilPx[0], centerRightPupilPx[1], centerLeftPupilPx[0], centerLeftPupilPx[1]);
-        }
-        */
-        #endregion
 
         // Start on first operating frame
         if (first_frame) 
@@ -220,6 +197,19 @@ public class MainTask : MonoBehaviour
 
         switch (current_state)
         {
+            case -2: // TASK BEGIN
+
+                if (PupilDataStreamScript.subsCtrl.IsConnected || RequestControllerScript.ans)
+                {
+                    foreach (Camera cam in player.GetComponentsInChildren<Camera>())
+                    {
+                        cam.backgroundColor = Color.black;
+                    }
+                    current_state = -1;
+                }
+
+                break;
+
             case -1: // INTERTRIAL
 
                 #region State Beginning (executed once upon entering)
@@ -445,8 +435,23 @@ public class MainTask : MonoBehaviour
                 #endregion
 
                 #region State Body
+
                 if (player.GetComponent<Movement>().HasCollided) // If collision happened
                 {
+
+                    // Check if collided object is the correct one
+                    if (player.GetComponent<Movement>().CollidedObject.transform.position == CorrectTargetCurrentPosition)
+                    {
+                        // Go to second RT
+                        current_state = 5;
+                    }
+                    else
+                    {
+                        error_state = $"ERR: Selected target at {player.GetComponent<Movement>().CollidedObject.transform.position} but correct position: {CorrectTargetCurrentPosition}";
+                        current_state = -99;
+                    }
+
+
                     // Change target material (juicy mat is grey ball)
                     for (int i = 0; i < targets.Length; i++)
                     {
@@ -456,8 +461,10 @@ public class MainTask : MonoBehaviour
                         }
                     }
 
+                    // Go to second RT
                     current_state = 5;
                 }
+
                 #endregion
 
                 #region State End
@@ -487,8 +494,8 @@ public class MainTask : MonoBehaviour
                 #endregion
 
                 #region State Body
-                // MEF is static and in collision for the duration of second RT
-                if (player.GetComponent<Movement>().CollisionTime >= second_RT_maxduration && !isMoving)
+                // MEF stops moving
+                if (!isMoving)
                 {
                     // Change target material (eaten mat is white ball)
                     for (int i = 0; i < targets.Length; i++)
@@ -499,28 +506,28 @@ public class MainTask : MonoBehaviour
                         }
                     }
 
-                    // Check if collided object is the correct one
-                    if (player.GetComponent<Movement>().CollidedObject.transform.position == CorrectTargetCurrentPosition)
-                    {
-                        current_state = 99;
-                        Debug.Log("CORRECT TARGET");
-                    }
-                    else
-                    {
-                        error_state = $"ERR: Selected target at {player.GetComponent<Movement>().CollidedObject.transform.position} but correct position: {CorrectTargetCurrentPosition}";
-                        current_state = -99;
-                    }
-
+                    // Go to reward
+                    current_state = 99;
                 }
-                #endregion
 
-                #region State End
+
                 // If player exits the collision (i.e. contact time lower than reaction time)
                 if (!player.GetComponent<Movement>().HasCollided)
                 {
-                    error_state = "ERR: Moved too early in 2nd RT";
+                    error_state = "ERR: Collision ended early in 2nd RT";
                     current_state = -99;
                 }
+
+                #endregion
+
+                #region State End
+
+                if ((Time.time - lastevent) >= second_RT_maxduration)
+                {
+                    error_state = "ERR: Not Moving in RT";
+                    current_state = -99;
+                }
+
                 #endregion
 
                 break;

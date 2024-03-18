@@ -44,9 +44,7 @@ public class Movement : MonoBehaviour
         if (reverse_Xaxis) { x_inversion = -1; }
         if (reverse_Yaxis) { y_inversion = -1; }
         rb = GetComponent<Rigidbody>();
-        //rb.mass = 2;
         target = GameObject.Find("Target");
-        //experiment = GameObject.Find("Experiment");
     }
 
     
@@ -78,19 +76,27 @@ public class Movement : MonoBehaviour
         arduX = x_inversion * Exp.GetComponent<Ardu>().ax1;
         arduY = y_inversion * Exp.GetComponent<Ardu>().ax2;
  
-        if (Input.anyKey || arduX != 0 || arduY != 0)
+        if (Input.anyKey || !float.IsNaN(arduX) || !float.IsNaN(arduY))
         {
             keypressed = true;
 
+            // Convert to 0 to do operations because NaN is "Not a Number"
+            if (float.IsNaN(arduX) || float.IsNaN(arduY))
+            {
+                arduX = 0;
+                arduY = 0;
+            }
+
             //Movement
             CamRotation = transform.localEulerAngles;
+            
             CamRotation.y += Input.GetAxis("Horizontal") * Time.deltaTime * restrict_horizontal * 40 * speed;
 
             CamRotation.y += (arduX / 512f) * Time.deltaTime * restrict_horizontal * 40 * speed;
             //CamRotation.y += (arduX / 512f) * restrict_horizontal * speed * 3;
 
             transform.localEulerAngles = CamRotation;
-
+            
             if (Input.GetAxis("Vertical") > 0 || arduY > 0) //
             {
                 Vector3 moveVector = ((transform.rotation * Camera.main.transform.localRotation) * Vector3.forward * Input.GetAxis("Vertical") * 4) + ((transform.rotation * Camera.main.transform.localRotation) * Vector3.forward * (arduY / 512f) * 4);

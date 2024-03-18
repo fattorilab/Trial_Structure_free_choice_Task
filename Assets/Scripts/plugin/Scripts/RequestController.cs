@@ -12,11 +12,15 @@ namespace PupilLabs
 
     public partial class RequestController : MonoBehaviour
     {
-        [SerializeField][HideInInspector]
+        [SerializeField]
+        [HideInInspector]
         private Request request;
+        public bool ans = false;
 
         [Header("Settings")]
+
         public float retryConnectDelay = 5f;
+
         public bool connectOnEnable = true;
 
         public event Action OnConnected = delegate { };
@@ -27,8 +31,9 @@ namespace PupilLabs
             get { return request.IsConnected && connectingDone; }
         }
         private bool connectingDone;
-        
-        [SerializeField][HideInInspector] 
+
+        [SerializeField]
+        [HideInInspector]
         private bool isConnecting = false;
 
         public string IP
@@ -43,7 +48,8 @@ namespace PupilLabs
             set { request.PORT = value; }
         }
 
-        [SerializeField][HideInInspector]
+        [SerializeField]
+        [HideInInspector]
         private string PupilVersion;
 
         public string GetSubConnectionString()
@@ -57,7 +63,7 @@ namespace PupilLabs
         }
 
         void Awake()
-        {   
+        {
             NetMQCleanup.MonitorConnection(this);
         }
 
@@ -68,7 +74,9 @@ namespace PupilLabs
                 request = new Request();
             }
 
+
             PupilVersion = "not connected";
+
             if (!request.IsConnected && connectOnEnable)
             {
                 RunConnect(3f);
@@ -129,13 +137,22 @@ namespace PupilLabs
                     if (retry)
                     {
                         Debug.LogWarning("Could not connect, Re-trying in 5 seconds! ");
+                        ans = EditorUtility.DisplayDialog("PupilLabs Connection Error", "Unable to connect correctly to PupilLabs",
+                        "Go ahead without PupilLabs (no eyedata)", "Exit game");
+                        // You can add a delay here if you want
+                        if (ans)
+                        {
+                            Debug.LogWarning("Could not connect! ");
+                            yield break;
+                        }
+                        else { QuitGame(); }
                         yield return new WaitForSeconds(retryConnectDelay);
                     }
-                    else
+                    /*else
                     {
                         Debug.LogWarning("Could not connect! ");
                         yield break;
-                    }
+                    }*/
                 }
             }
 
@@ -207,6 +224,13 @@ namespace PupilLabs
             Send(startRightEye);
         }
 
+        public void QuitGame()
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#endif
+            Application.Quit();
+        }
         public void StartPlugin(string name, Dictionary<string, object> args = null)
         {
             Dictionary<string, object> startPluginDic = new Dictionary<string, object> {

@@ -1093,6 +1093,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d762135f370c81459d7e16c3841f003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ardu_working: 0
   testing: 1
   COM: COM10
   ax1: 0
@@ -1408,7 +1409,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6319604398773079951, guid: f7e9680a457b931439e600ef231af875, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1969,7 +1970,7 @@ MonoBehaviour:
   is_eating: 0
   HasCollided: 0
   CollisionTime: 0
-  CollidedObjectName: 
+  CollidedObject: {fileID: 0}
 --- !u!4 &1913868726121276997
 Transform:
   m_ObjectHideFlags: 0

@@ -5,8 +5,7 @@ using UnityEngine;
 using System.Threading;
 using System.Text;
 using System.Linq;
-
- public class arduino
+public class arduino
 {
     SerialPort sp;
     List<float> lastXValues = new List<float>(); // List to store last X values
@@ -16,12 +15,16 @@ using System.Linq;
     public int JSdeadzone;
     Thread thread;
     bool stopThread;
-     public arduino(string _COM, int _COMspeed, int _JSdeadzone)
+    float lastSampleTime;
+
+    public arduino(string _COM, int _COMspeed, int _JSdeadzone)
+
     {
         COMspeed = _COMspeed;
         COM = _COM;
         JSdeadzone = _JSdeadzone;
         sp = new SerialPort("\\\\.\\" + COM, COMspeed);
+        lastSampleTime = Time.time;
         if (!sp.IsOpen)
         {
             Debug.Log("Apertura " + COM + ", baud " + COMspeed);
@@ -31,6 +34,7 @@ using System.Linq;
         thread = new Thread(JoySample);
         thread.Start();
     }
+
     public void JoySample()
     {
         StringBuilder buffer = new StringBuilder();
@@ -54,13 +58,13 @@ using System.Linq;
                 while ((newLineIndex = buffer.ToString().IndexOf('\n')) >= 0)
                 {
                     string line = buffer.ToString(0, newLineIndex - 1);
-                    buffer.Remove(0, newLineIndex +1);
-                    
-                    
+                    buffer.Remove(0, newLineIndex + 1);
+
+
                     // Ensure the line contains the expected length and keywords
                     if (line.Length == 14 && line.Contains("AX1") && line.Contains("AX2"))
                     {
-                        
+
                         // Extract values without using Substring and Parse
                         float xValue, yValue;
                         if (float.TryParse(line.Substring(3, 4), out xValue) &&
@@ -69,15 +73,16 @@ using System.Linq;
                             xValue -= 511;
                             yValue -= 511;
 
-                            
-
                             // Add the new values to the queues
                             lastXValues.Add(xValue);
                             lastYValues.Add(yValue);
 
+                            // track the timestamp of the last sample
+                            lastSampleTime = Time.time;
 
                         }
                     }
+
                 }
 
                 // Remove the oldest values if the queues exceed 10 elements
@@ -95,38 +100,53 @@ using System.Linq;
         Debug.Log("Chiuso Arduino");
     }
 
+    public bool isWorkingCorrectly() // return true if it's less than 1 sec since the last correct line was parsed
+    {
+        bool working = false;
+        if ((Time.time - lastSampleTime) < 1)
+        {
+            working = true;
+        }
+        return working;
+    }
 
     public float getX()
     {
         float xavg = 0;
-            if (lastXValues.Count > 0)
-            {   try{
-                    xavg = lastXValues.Average();}
-                catch{}
+        if (lastXValues.Count > 0)
+        {
+            try
+            {
+                xavg = lastXValues.Average();
             }
-            if (Mathf.Abs(xavg) > JSdeadzone) { return xavg; }
-            else { return 0f; }
+            catch { }
+        }
+        if (Mathf.Abs(xavg) > JSdeadzone) { return xavg; }
+        else { return 0f; }
     }
 
     public float getY()
     {
         float yavg = 0;
         if (lastYValues.Count > 0)
-        {   
-            try{
-                yavg = lastYValues.Average();}
-            catch{}
+        {
+            try
+            {
+                yavg = lastYValues.Average();
+            }
+            catch { }
         }
         if (Mathf.Abs(yavg) > JSdeadzone) { return yavg; }
         else { return 0f; }
-    
+
     }
 
-     public void stopserial()
+    public void stopserial()
     {
         stopThread = true;
     }
-     public void sendSerial(string cosa)
+
+    public void sendSerial(string cosa)
     {
         if (!sp.IsOpen)
         {
