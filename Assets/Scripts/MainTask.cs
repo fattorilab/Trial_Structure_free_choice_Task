@@ -168,9 +168,6 @@ public class MainTask : MonoBehaviour
         // Define number of trials per each target
         trials_for_target = new int[target_positions.Count];
 
-
-
-
         // Save target settings (????)
         GetComponent<Saver>().addObject("Target_Setting: Custom", "Setting", 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
@@ -203,24 +200,6 @@ public class MainTask : MonoBehaviour
         }
         */
         #endregion
-
-        /*
-        #region Check with Ardu if player is moving
-        arduX = ardu.ax1;   //note: if arduino is not connected (or not working) the arduX,Y = NaN;
-        arduY = ardu.ax2;
-
-        isMoving = player.GetComponent<Movement>().keypressed;
-
-        if ((!float.IsNaN(arduX) && arduX != 0) || (!float.IsNaN(arduY) && arduY != 0) || Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0)
-        {
-            isMoving = true;
-        }
-        else
-        {
-            isMoving = false;
-        }
-        #endregion
-        */
 
         // Start on first operating frame
         if (first_frame) 
@@ -316,6 +295,8 @@ public class MainTask : MonoBehaviour
                     // Choose the correct target
                     current_condition = condition_list[0];
                     CorrectTargetCurrentPosition = target_positions[current_condition];
+
+                    Debug.Log($"SELECTED position {CorrectTargetCurrentPosition}");
 
                     // Picking first time from the timing list to select epoch durations in this trial
                     FREE_duration = FREE_timing[FREE_timing_list[0]];
@@ -471,7 +452,10 @@ public class MainTask : MonoBehaviour
                     // Change target material (juicy mat is grey ball)
                     for (int i = 0; i < targets.Length; i++)
                     {
-                        changeTargetMaterial(targets[i], juicy_mat);
+                        if (targets[i].name == player.GetComponent<Movement>().CollidedObjectName)
+                        {
+                            changeTargetMaterial(targets[i], juicy_mat);
+                        }
                     }
 
                     current_state = 5;
@@ -511,10 +495,24 @@ public class MainTask : MonoBehaviour
                     // Change target material (eaten mat is white ball)
                     for (int i = 0; i < targets.Length; i++)
                     {
-                        changeTargetMaterial(targets[i], eaten_mat);
+                        if (targets[i].name == player.GetComponent<Movement>().CollidedObjectName)
+                        {
+                            changeTargetMaterial(targets[i], juicy_mat);
+                        }
                     }
 
-                    current_state = 99;
+                    // Check if collided object is the correct one
+                    if (player.GetComponent<Movement>().CollidedObjectPosition == CorrectTargetCurrentPosition)
+                    {
+                        current_state = 99;
+                        Debug.Log("CORRECT TARGET");
+                    }
+                    else
+                    {
+                        error_state = $"ERR: Selected target at {player.GetComponent<Movement>().CollidedObjectPosition} but correct position: {CorrectTargetCurrentPosition}";
+                        current_state = -99;
+                    }
+                       
                 }
                 #endregion
 
@@ -589,7 +587,7 @@ public class MainTask : MonoBehaviour
                 #endregion
 
                 #region State End
-                if ((Time.time - lastevent) == RewardLength)
+                if ((Time.time - lastevent) >= RewardLength)
                 {
                     current_state = -1;
                 }
@@ -780,15 +778,13 @@ public class MainTask : MonoBehaviour
         {
             // Instantiate
             targets[i] = Instantiate(TargetPrefab, target_positions[i], Quaternion.Euler(0, 0, 0), environment.transform); // TargetPrefab.transform.rotation , environment.transform);
-            targets[i].name = $"{TargetPrefab.name}_" + i.ToString();
+            targets[i].name = $"{TargetPrefab.name}_{i.ToString()}";
 
             // Disable (make invisible)
             targets[i].GetComponent<MeshRenderer>().enabled = false;
 
             // Add target to data to be saved
-            identifier = targets[i].GetInstanceID().ToString();
-
-            GetComponent<Saver>().addObject(identifier,
+            GetComponent<Saver>().addObject(targets[i].name,
                 "Target", // target_positions[i].x, target_positions[i].z, 0, "Position");
                 targets[i].transform.position.x,
                 targets[i].transform.position.y,
