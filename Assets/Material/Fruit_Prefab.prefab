@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 7803970846313583071}
   - component: {fileID: 7803970846313583068}
   - component: {fileID: 7803970846313583069}
-  - component: {fileID: 7803970846313583058}
   m_Layer: 0
   m_Name: Fruit_Prefab
   m_TagString: Untagged
@@ -157,31 +156,3 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &7803970846313583058
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7803970846313583056}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe2da4293a27c4b42b589a71e2116180, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  distance: 0
-  chosen: 0
-  prejuicy: 0
-  fake_prejuicy: 0
-  classic_look: 0
-  obviously_wrong_but_possible: 0
-  juicy: 0
-  fake_juicy: 0
-  eaten: 0
-  multiple_fruit_mode: 0
-  neutral_mat: {fileID: 2100000, guid: 2aedcb3bbffb74445b2c0bff17464dcb, type: 2}
-  red_mat: {fileID: 2100000, guid: d831a1238a330a4478afbf69681c2b89, type: 2}
-  chosen_mat: {fileID: 2100000, guid: 1c1a9f2ebad7437438a8a866ba3eb9ec, type: 2}
-  prejuicy_mat: {fileID: 2100000, guid: 3a42063aa29caf3428d6dcfa8d4c62a2, type: 2}
-  juicy_mat: {fileID: 2100000, guid: ceb5d8103c46f504488a03ce57193689, type: 2}
-  eaten_mat: {fileID: 2100000, guid: 5b6d35cbaeefa3d439ba82a928056bac, type: 2}

@@ -8,17 +8,13 @@ public class Movement : MonoBehaviour
     public bool reverse_Xaxis;
     public bool reverse_Yaxis;
 
-    //public bool centerRotationLaterally;
-    //public float maximumAngleToTarget;
     public float restrict_horizontal = 1;
     public float restrict_backwards = 1;
     public float restrict_forwards = 1;
-    public bool keypressed = false;
+    [System.NonSerialized] public bool keypressed = false;
     
-    public float presstime = 0;
-    public GameObject Exp;
-
-    public bool is_eating = false;
+    private float presstime = 0;
+    GameObject Exp;
 
     Vector3 CamPosition;
     Vector3 CamRotation;
@@ -33,9 +29,9 @@ public class Movement : MonoBehaviour
     GameObject target;
 
     // MANAGE COLLISIONS
-    public bool HasCollided = false;
-    public float CollisionTime = 0f;
-    public GameObject CollidedObject;
+    [System.NonSerialized] public bool HasCollided = false;
+    [System.NonSerialized] public float CollisionTime = 0f;
+    [System.NonSerialized] public GameObject CollidedObject;
 
     // Start is called before the first frame update
     void Start()
@@ -45,6 +41,7 @@ public class Movement : MonoBehaviour
         if (reverse_Yaxis) { y_inversion = -1; }
         rb = GetComponent<Rigidbody>();
         target = GameObject.Find("Target");
+        Exp = GameObject.Find("Experiment");
     }
 
     

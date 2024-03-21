@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using UnityEngine;
+using UnityEditor;
 using PupilLabs;
 
 
@@ -19,12 +20,12 @@ public class MainTask : MonoBehaviour
     [Header("GameObjects and components")]
 
     // Cams
-    Camera camM;
-    Camera camL;
-    Camera camR;
+    [System.NonSerialized] Camera camM;
+    [System.NonSerialized] Camera camL;
+    [System.NonSerialized] Camera camR;
 
     // Pupil
-    public PupilDataStream PupilDataStreamScript;
+    [System.NonSerialized] public PupilDataStream PupilDataStreamScript;
     private RequestController RequestControllerScript;
     private bool PupilDataConnessionStatus;
 
@@ -38,7 +39,7 @@ public class MainTask : MonoBehaviour
     public string MEF;
     public string path_to_data = "C:/Users/admin/Desktop/Registrazioni_VR/";
     public bool RECORD_EYES;
-    [HideInInspector] public int lastIDFromDB;
+    [System.NonSerialized] public int lastIDFromDB;
     [HideInInspector] public int seed = 12345;
     [HideInInspector] public long starttime = 0;
     [HideInInspector] public int frame_number = 0;
@@ -53,19 +54,19 @@ public class MainTask : MonoBehaviour
     [Header("Trials Info")]
     public string file_name_positions;
     // States
-    public int current_state;
+    [System.NonSerialized] public int current_state;
     private int last_state;
-    [HideInInspector] public string error_state;
+    [System.NonSerialized] public string error_state;
     // Trials
-    public int current_trial;
+    [System.NonSerialized] public int current_trial;
     public int trials_win;
     public int trials_lose;
     public int[] trials_for_target;
     public int trials_for_cond = 1;
     // Conditions
     private int randomIndex;
-    public List<int> condition_list;
-    [HideInInspector] public int current_condition;
+    [System.NonSerialized] public List<int> condition_list;
+    [System.NonSerialized] public int current_condition;
     //
     private float lastevent;
     private string identifier;
@@ -76,17 +77,17 @@ public class MainTask : MonoBehaviour
     // List, because it is changing size during the runtime
     public List<Vector3> target_positions = new List<Vector3>();
     GameObject[] targets;
-    public GameObject TargetPrefab; 
-    public Vector3 CorrectTargetCurrentPosition;
+    [System.NonSerialized] public GameObject TargetPrefab;
+    [System.NonSerialized] public Vector3 CorrectTargetCurrentPosition;
 
     #region Materials
     [Header("Target Materials")]
-    public Material neutral_mat;
-    public Material red_mat;
-    public Material chosen_mat;
-    public Material prejuicy_mat;
-    public Material juicy_mat;
-    public Material eaten_mat;
+    [System.NonSerialized] public Material initial_grey;
+    [System.NonSerialized] public Material red;
+    [System.NonSerialized] public Material green_dot;
+    [System.NonSerialized] public Material red_dot;
+    [System.NonSerialized] public Material final_grey;
+    [System.NonSerialized] public Material white;
     #endregion
 
     [Header("Epoches Info")]
@@ -99,26 +100,25 @@ public class MainTask : MonoBehaviour
     private List<int> DELAY_timing_list;
     private List<int> RT_timing_list;
 
-    private float BASELINE_duration = 2f; //   FIXED OR NO?????
-    private float INTERTRIAL_duration = 2f;          //  FIXED OR NO?????
+    public float BASELINE_duration = 2f;
+    public float INTERTRIAL_duration = 2f;
     private float FREE_duration;
     private float DELAY_duration;
     private float RT_maxduration;
-    private float MOVEMENT_maxduration = 6f; // ADDED BY EDO TO MANAGE MOVEMENT STATE (i.e. case 4)          FIXED OR NO?????
-    private float second_RT_maxduration = 2f; // ADDED BY EDO TO MANAGE 2ND RT STATE (i.e. case 5)            FIXED OR NO?????
+    public float MOVEMENT_maxduration = 6f;
+    public float second_RT_maxduration = 2f;
 
     [Header("Arduino Info")]
-    public Ardu ardu;
-    public float arduX;
-    public float arduY;
-    //public int dead_zone;
-      
+    [System.NonSerialized] public Ardu ardu;
+    [System.NonSerialized] public float arduX;
+    [System.NonSerialized] public float arduY;
+
     [Header("PupilLab Info")]
-    public Vector2 centerRightPupilPx = new Vector2(float.NaN, float.NaN);
-    public Vector2 centerLeftPupilPx = new Vector2(float.NaN, float.NaN);
-    public float diameterRight = float.NaN;
-    public float diameterLeft = float.NaN;
-    public bool pupilconnection;
+    [System.NonSerialized] public Vector2 centerRightPupilPx = new Vector2(float.NaN, float.NaN);  
+    [System.NonSerialized] public Vector2 centerLeftPupilPx = new Vector2(float.NaN, float.NaN);  
+    [System.NonSerialized] public float diameterRight = float.NaN;                 
+    [System.NonSerialized] public float diameterLeft = float.NaN;                   
+    [System.NonSerialized] public bool pupilconnection;
 
     #endregion
 
@@ -157,6 +157,17 @@ public class MainTask : MonoBehaviour
         PupilDataStreamScript = GameObject.Find("PupilDataManagment").GetComponent<PupilDataStream>();
         RequestControllerScript = GameObject.Find("PupilDataManagment").GetComponent<RequestController>();
 
+        // Materials
+        initial_grey = AssetDatabase.LoadAssetAtPath<Material>("Assets/Material/fruit/neutralgrey.mat");
+        red = AssetDatabase.LoadAssetAtPath<Material>("Assets/Material/fruit/red_fruit.mat");
+        green_dot = AssetDatabase.LoadAssetAtPath<Material>("Assets/Material/fruit/green_dot.mat");
+        red_dot = AssetDatabase.LoadAssetAtPath<Material>("Assets/Material/fruit/reddot.mat");
+        final_grey = AssetDatabase.LoadAssetAtPath<Material>("Assets/Material/fruit/grey_fruit.mat");
+        white = AssetDatabase.LoadAssetAtPath<Material>("Assets/Material/fruit/white_fruit.mat");
+
+        // Target Prefab
+        TargetPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Material/Fruit_Prefab.prefab");
+
         // Import targets coordinates from csv file into target_positions list
         // and initiate the targets in a disable state (i.e invisible)
         InstantiateTargets(target_positions);
@@ -169,8 +180,6 @@ public class MainTask : MonoBehaviour
         FREE_timing_list = CreateRandomSequence(FREE_timing.Length, trials_for_cond * target_positions.Count);
         DELAY_timing_list = CreateRandomSequence(DELAY_timing.Length, trials_for_cond * target_positions.Count);
         RT_timing_list = CreateRandomSequence(RT_timing.Length, trials_for_cond * target_positions.Count);
-        // 2nd RT
-        // 
 
     }
 
@@ -192,12 +201,11 @@ public class MainTask : MonoBehaviour
         // Check if the player is moving the joystick
         isMoving = player.GetComponent<Movement>().keypressed;
 
-
         #region StateMachine
 
         switch (current_state)
         {
-            case -2: // TASK BEGIN
+            case -2: // TASK BEGINS
 
                 if (PupilDataStreamScript.subsCtrl.IsConnected || RequestControllerScript.ans)
                 {
@@ -279,7 +287,7 @@ public class MainTask : MonoBehaviour
                     // Change target material (neutral mat is the initial grey ball )
                     for (int i = 0; i < targets.Length; i++)
                     {
-                        changeTargetMaterial(targets[i], neutral_mat);      
+                        changeTargetMaterial(targets[i], initial_grey);      
                     }
 
                     // Choose the correct target
@@ -348,10 +356,10 @@ public class MainTask : MonoBehaviour
                 {
                     Debug.Log($"Current state: {current_state}");
 
-                    // Change target material (chosen mat is ball with green dot)
+                    // Change target material (green dot)
                     for (int i = 0; i < targets.Length; i++)
                     {
-                        changeTargetMaterial(targets[i], chosen_mat);       
+                        changeTargetMaterial(targets[i], green_dot);       
                     }
 
                     // Beginning routine
@@ -388,10 +396,10 @@ public class MainTask : MonoBehaviour
                 {
                     Debug.Log($"Current state: {current_state}");
 
-                    // Change target material (prejuicy mat is ball with red dot)
+                    // Change target material (red dot)
                     for (int i = 0; i < targets.Length; i++)
                     {
-                        changeTargetMaterial(targets[i], prejuicy_mat);
+                        changeTargetMaterial(targets[i], red_dot);
                     }
 
                     //Beginning routine
@@ -457,7 +465,7 @@ public class MainTask : MonoBehaviour
                     {
                         if (targets[i].name == player.GetComponent<Movement>().CollidedObject.name)
                         {
-                            changeTargetMaterial(targets[i], juicy_mat);
+                            changeTargetMaterial(targets[i], final_grey);
                         }
                     }
 
@@ -502,7 +510,7 @@ public class MainTask : MonoBehaviour
                     {
                         if (targets[i].name == player.GetComponent<Movement>().CollidedObject.name)
                         {
-                            changeTargetMaterial(targets[i], eaten_mat);
+                            changeTargetMaterial(targets[i], white);
                         }
                     }
 
@@ -726,7 +734,7 @@ public class MainTask : MonoBehaviour
 
     }
 
-    #endregion
+#endregion
 
     #region Manage targets
 

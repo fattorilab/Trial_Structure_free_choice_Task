@@ -188,7 +188,7 @@ namespace FFmpegOut
                 // Check if path_to_data and lastIDFromDB are not null or zero
                 if (!string.IsNullOrEmpty(path_to_MEF) && lastIDFromDB != 0)
                 {
-                    path_to_data_RecorderFrames = Path.Combine(path_to_MEF, "DATI", (DateTime.Now.ToString("yyyy_MM_dd") 
+                    path_to_data_RecorderFrames = Path.Combine(path_to_MEF, "VIDEO", (DateTime.Now.ToString("yyyy_MM_dd") 
                         + "_ID" + (lastIDFromDB + 1).ToString() + $"_{camera.tag}" + "_recorderFrames.csv"));
                     _streamWriter = new StreamWriter(path_to_data_RecorderFrames);
                     _streamWriter.WriteLine("Timestamp,Frame,Reward_count");

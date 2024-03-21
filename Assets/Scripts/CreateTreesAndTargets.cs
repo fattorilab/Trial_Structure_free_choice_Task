@@ -65,7 +65,6 @@ public class CreateTreesAndTargets : MonoBehaviour
             createAndSaveObject(doubleobject, "DoubleTarget");*/
         }
 
-        //saveObjects();
     }
 
 
@@ -92,37 +91,6 @@ public class CreateTreesAndTargets : MonoBehaviour
             scale[1],
             scale[2]
             );
-    }
-
-    void saveObjects()
-    {
-        foreach (Transform child in transform)
-        {
-            if (child.name != "Ground")
-            {
-
-                // Check if child's transform is not null
-                Vector3 position = child.position;
-                Vector3 rotation = child.eulerAngles;
-                Vector3 scale = child.localScale;
-
-                //try
-                //{
-                    // If all required components are not null, proceed with saving
-                    experiment.GetComponent<Saver>().addObject(
-                        child.GetInstanceID().ToString(), 
-                        child.tag,
-                        position[0], 
-                        position[1], 
-                        position[2],
-                        rotation[0], 
-                        rotation[1], 
-                        rotation[2],
-                        scale[0], 
-                        scale[1], 
-                        scale[2]);
-            }
-        }
     }
 
     public void deleteGreenery()

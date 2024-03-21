@@ -1036,7 +1036,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camM: {fileID: 0}
-  PupilDataStreamScript: {fileID: 0}
   MEF: ciuffa
   path_to_data: C:\Users\edoar\Documents\Fattori_lab\test_data_folder
   RECORD_EYES: 0
@@ -1049,38 +1048,21 @@ MonoBehaviour:
   minimumRewardTime: 200
   minimumDistance: 2
   file_name_positions: custom_test
-  current_state: 0
-  error_state: 0
-  current_trial: 0
   trials_win: 0
   trials_lose: 0
   trials_for_target: 
   trials_for_cond: 5
-  condition_list: 
-  current_condition: 0
   target_positions: []
-  TargetPrefab: {fileID: 7803970846313583056, guid: 69ab4cefa3c3a7347a697075b8b2e78e, type: 3}
-  CorrectTargetCurrentPosition: {x: 0, y: 0, z: 0}
-  neutral_mat: {fileID: 2100000, guid: 2aedcb3bbffb74445b2c0bff17464dcb, type: 2}
-  red_mat: {fileID: 2100000, guid: d831a1238a330a4478afbf69681c2b89, type: 2}
-  chosen_mat: {fileID: 2100000, guid: 1c1a9f2ebad7437438a8a866ba3eb9ec, type: 2}
-  prejuicy_mat: {fileID: 2100000, guid: 3a42063aa29caf3428d6dcfa8d4c62a2, type: 2}
-  juicy_mat: {fileID: 2100000, guid: ceb5d8103c46f504488a03ce57193689, type: 2}
-  eaten_mat: {fileID: 2100000, guid: 5b6d35cbaeefa3d439ba82a928056bac, type: 2}
   FREE_timing:
   - 5
   DELAY_timing:
   - 5
   RT_timing:
   - 5
-  ardu: {fileID: 0}
-  arduX: 0
-  arduY: 0
-  centerRightPupilPx: {x: NaN, y: NaN}
-  centerLeftPupilPx: {x: NaN, y: NaN}
-  diameterRight: NaN
-  diameterLeft: NaN
-  pupilconnection: 0
+  BASELINE_duration: 1
+  INTERTRIAL_duration: 1
+  MOVEMENT_maxduration: 10
+  second_RT_maxduration: 2
 --- !u!114 &1239289646
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1094,8 +1076,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ardu_working: 0
-  testing: 1
-  COM: COM10
+  testing: 0
+  COM: COM5
   ax1: 0
   ax2: 0
   reward_counter: 0

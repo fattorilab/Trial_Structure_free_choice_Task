@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Threading;
 using System.Text;
 using System.Linq;
-public class arduino
+ public class arduino
 {
     SerialPort sp;
     List<float> lastXValues = new List<float>(); // List to store last X values
@@ -17,14 +17,14 @@ public class arduino
     bool stopThread;
     float lastSampleTime;
 
-    public arduino(string _COM, int _COMspeed, int _JSdeadzone)
+     public arduino(string _COM, int _COMspeed, int _JSdeadzone)
 
     {
         COMspeed = _COMspeed;
         COM = _COM;
         JSdeadzone = _JSdeadzone;
         sp = new SerialPort("\\\\.\\" + COM, COMspeed);
-        lastSampleTime = Time.time;
+        lastSampleTime = System.DateTimeOffset.Now.ToUnixTimeMilliseconds();
         if (!sp.IsOpen)
         {
             Debug.Log("Apertura " + COM + ", baud " + COMspeed);
@@ -58,13 +58,13 @@ public class arduino
                 while ((newLineIndex = buffer.ToString().IndexOf('\n')) >= 0)
                 {
                     string line = buffer.ToString(0, newLineIndex - 1);
-                    buffer.Remove(0, newLineIndex + 1);
-
-
+                    buffer.Remove(0, newLineIndex +1);
+                    
+                    
                     // Ensure the line contains the expected length and keywords
                     if (line.Length == 14 && line.Contains("AX1") && line.Contains("AX2"))
                     {
-
+                        
                         // Extract values without using Substring and Parse
                         float xValue, yValue;
                         if (float.TryParse(line.Substring(3, 4), out xValue) &&
@@ -78,7 +78,7 @@ public class arduino
                             lastYValues.Add(yValue);
 
                             // track the timestamp of the last sample
-                            lastSampleTime = Time.time;
+                            lastSampleTime = System.DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
                         }
                     }
@@ -103,7 +103,7 @@ public class arduino
     public bool isWorkingCorrectly() // return true if it's less than 1 sec since the last correct line was parsed
     {
         bool working = false;
-        if ((Time.time - lastSampleTime) < 1)
+        if ((System.DateTimeOffset.Now.ToUnixTimeMilliseconds() - lastSampleTime) < 1000) 
         {
             working = true;
         }
@@ -113,40 +113,35 @@ public class arduino
     public float getX()
     {
         float xavg = 0;
-        if (lastXValues.Count > 0)
-        {
-            try
-            {
-                xavg = lastXValues.Average();
+            if (lastXValues.Count > 0)
+            {   try{
+                    xavg = lastXValues.Average();}
+                catch{}
             }
-            catch { }
-        }
-        if (Mathf.Abs(xavg) > JSdeadzone) { return xavg; }
-        else { return 0f; }
+            if (Mathf.Abs(xavg) > JSdeadzone) { return xavg; }
+            else { return 0f; }
     }
 
     public float getY()
     {
         float yavg = 0;
         if (lastYValues.Count > 0)
-        {
-            try
-            {
-                yavg = lastYValues.Average();
-            }
-            catch { }
+        {   
+            try{
+                yavg = lastYValues.Average();}
+            catch{}
         }
         if (Mathf.Abs(yavg) > JSdeadzone) { return yavg; }
         else { return 0f; }
-
+    
     }
 
-    public void stopserial()
+     public void stopserial()
     {
         stopThread = true;
     }
 
-    public void sendSerial(string cosa)
+     public void sendSerial(string cosa)
     {
         if (!sp.IsOpen)
         {
