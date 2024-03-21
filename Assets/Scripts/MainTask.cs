@@ -276,7 +276,11 @@ public class MainTask : MonoBehaviour
                 #endregion
 
                 #region State Body (executed every frame while in state)
-
+                // Prevent entering FREE state from a position different from initial
+                if (isMoving)
+                {
+                    reset_position();
+                }
                 #endregion
 
                 #region State End (executed once upon exiting)
@@ -515,7 +519,10 @@ public class MainTask : MonoBehaviour
                     }
 
                     // Go to reward
-                    current_state = 99;
+                    if ((Time.time - lastevent) >= 1f)
+                    {
+                        current_state = 99;
+                    }
                 }
 
 

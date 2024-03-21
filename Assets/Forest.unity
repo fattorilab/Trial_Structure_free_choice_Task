@@ -1035,11 +1035,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23250581479892f43b4af8e1e4923187, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camM: {fileID: 0}
   MEF: ciuffa
   path_to_data: C:\Users\edoar\Documents\Fattori_lab\test_data_folder
   RECORD_EYES: 0
-  lastIDFromDB: 0
   seed: 1
   starttime: 0
   frame_number: 0
@@ -1054,14 +1052,14 @@ MonoBehaviour:
   trials_for_cond: 5
   target_positions: []
   FREE_timing:
-  - 5
+  - 1
   DELAY_timing:
-  - 5
+  - 1
   RT_timing:
   - 5
   BASELINE_duration: 1
   INTERTRIAL_duration: 1
-  MOVEMENT_maxduration: 10
+  MOVEMENT_maxduration: 500
   second_RT_maxduration: 2
 --- !u!114 &1239289646
 MonoBehaviour:
@@ -1946,13 +1944,7 @@ MonoBehaviour:
   restrict_horizontal: 1
   restrict_backwards: 1
   restrict_forwards: 1
-  keypressed: 0
   presstime: 0
-  Exp: {fileID: 1239289640}
-  is_eating: 0
-  HasCollided: 0
-  CollisionTime: 0
-  CollidedObject: {fileID: 0}
 --- !u!4 &1913868726121276997
 Transform:
   m_ObjectHideFlags: 0
