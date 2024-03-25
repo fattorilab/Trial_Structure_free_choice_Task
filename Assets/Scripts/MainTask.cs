@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEditor;
 using PupilLabs;
 
@@ -34,6 +35,9 @@ public class MainTask : MonoBehaviour
     [HideInInspector] GameObject environment;
     [HideInInspector] GameObject experiment;
     [HideInInspector] GameObject player;
+
+    // Black pixels (for scripts syncing)
+    private GameObject markerObject;
 
     [Header("Saving info")]
     public string MEF;
@@ -148,14 +152,14 @@ public class MainTask : MonoBehaviour
         experiment = GameObject.Find("Experiment");
         environment = GameObject.Find("Environment");
 
+        // PupilLab
+        PupilDataStreamScript = GameObject.Find("PupilDataManagment").GetComponent<PupilDataStream>();
+        RequestControllerScript = GameObject.Find("PupilDataManagment").GetComponent<RequestController>();
+
         // Init cameras
         camM = GameObject.Find("Main Camera").GetComponent<Camera>();
         camL = GameObject.Find("Left Camera").GetComponent<Camera>();
         camR = GameObject.Find("Right Camera").GetComponent<Camera>();
-
-        // PupilLab
-        PupilDataStreamScript = GameObject.Find("PupilDataManagment").GetComponent<PupilDataStream>();
-        RequestControllerScript = GameObject.Find("PupilDataManagment").GetComponent<RequestController>();
 
         // Materials
         initial_grey = AssetDatabase.LoadAssetAtPath<Material>("Assets/Material/fruit/neutralgrey.mat");
@@ -181,6 +185,10 @@ public class MainTask : MonoBehaviour
         DELAY_timing_list = CreateRandomSequence(DELAY_timing.Length, trials_for_cond * target_positions.Count);
         RT_timing_list = CreateRandomSequence(RT_timing.Length, trials_for_cond * target_positions.Count);
 
+        // Black pixels (markers for scripts syncing)
+        markerObject = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        CreateMarkerBlack(markerObject, camM);
+
     }
 
     void Update()
@@ -194,7 +202,8 @@ public class MainTask : MonoBehaviour
             // Start time main task unity
             starttime = System.DateTimeOffset.Now.ToUnixTimeMilliseconds();
             // Send START trigger
-            ardu.SendStartRecordingOE();           
+            ardu.SendStartRecordingOE();
+
             first_frame = false;
         }
 
@@ -209,11 +218,18 @@ public class MainTask : MonoBehaviour
 
                 if (PupilDataStreamScript.subsCtrl.IsConnected || RequestControllerScript.ans)
                 {
-                    foreach (Camera cam in player.GetComponentsInChildren<Camera>())
-                    {
-                        cam.backgroundColor = Color.black;
-                    }
                     current_state = -1;
+                }
+
+                if (current_state == -1)
+                {
+                    // Activate black pixels for scripts syncing
+                    markerObject.SetActive(true);
+
+                    // Disable movement
+                    player.GetComponent<Movement>().restrict_backwards = 0;
+                    player.GetComponent<Movement>().restrict_forwards = 0;
+                    player.GetComponent<Movement>().restrict_horizontal = 0;
                 }
 
                 break;
@@ -243,7 +259,7 @@ public class MainTask : MonoBehaviour
                 #endregion
 
                 #region State End (executed once upon exiting)
-                if (!isMoving && ((Time.time - lastevent) > INTERTRIAL_duration))
+                if ((Time.time - lastevent) > INTERTRIAL_duration)
                 {
                     // Enable movement
                     player.GetComponent<Movement>().restrict_backwards = 1;
@@ -252,6 +268,10 @@ public class MainTask : MonoBehaviour
 
                     // Move to state 0
                     current_state = 0;
+
+                    // Save and Destroy black pixels objects before passing to next state
+                    experiment.GetComponent<Saver>().addObjectEnd(markerObject.GetInstanceID().ToString());
+                    Destroy(markerObject);
 
                 }
                 #endregion
@@ -845,4 +865,38 @@ public class MainTask : MonoBehaviour
 
     #endregion
 
+    private void CreateMarkerBlack(GameObject markerObj, Camera mainCamera)
+    {
+
+        // Set the position and scale of the Quad
+        markerObj.transform.position = mainCamera.transform.position + mainCamera.transform.forward * 1.0f;
+        markerObj.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
+
+        // Set the Quad to face the camera
+        markerObj.transform.LookAt(mainCamera.transform);
+        markerObj.transform.Rotate(0, 180, 0);
+
+        // Create a new Material with a pure black color
+        Material material = new Material(Shader.Find("Unlit/Color"));
+        material.color = Color.black;
+
+        // Set the Material of the Quad
+        Renderer renderer = markerObj.GetComponent<Renderer>();
+        renderer.material = material;
+
+        // Disable shadows
+        renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        renderer.receiveShadows = false;
+
+        // Initially set the marker to be invisible
+        markerObj.SetActive(false);
+
+        // Save object
+        string identifier = markerObj.GetInstanceID().ToString();
+        experiment.GetComponent<Saver>().addObject(identifier, "Black_pixels",
+                        markerObj.transform.position.x, markerObj.transform.position.y, markerObj.transform.position.z,
+                        markerObj.transform.eulerAngles.x, markerObj.transform.eulerAngles.y, markerObj.transform.eulerAngles.z,
+                        markerObj.transform.localScale.x, markerObj.transform.localScale.y, markerObj.transform.localScale.z);
+
+    }
 }

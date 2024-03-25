@@ -271,7 +271,7 @@ public class Saver : MonoBehaviour
         {
             if (SupplementData[i][0] == identifier)
             {
-                SupplementData[i][(SupplementData[i].Count - 1)] = (milliseconds - main.starttime).ToString();
+                SupplementData[i][(SupplementData[i].Count - 1)] = (milliseconds - starttime).ToString();
                 found = true;
                 break;
             }

@@ -84,7 +84,7 @@ public class Movement : MonoBehaviour
             arduY_notNaN = (int)0;
         }
 
-        if (Input.anyKey || arduX != 0 || arduY != 0)
+        if (Input.anyKey || arduX_notNaN != 0 || arduY_notNaN != 0)
         {
             keypressed = true;
 

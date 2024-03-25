@@ -1059,7 +1059,7 @@ MonoBehaviour:
   - 5
   BASELINE_duration: 1
   INTERTRIAL_duration: 1
-  MOVEMENT_maxduration: 500
+  MOVEMENT_maxduration: 10
   second_RT_maxduration: 2
 --- !u!114 &1239289646
 MonoBehaviour:
@@ -1074,7 +1074,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ardu_working: 0
-  testing: 0
+  testing: 1
   COM: COM5
   ax1: 0
   ax2: 0
