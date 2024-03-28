@@ -1041,7 +1041,7 @@ MonoBehaviour:
   seed: 1
   starttime: 0
   frame_number: 0
-  RewardLength: 10
+  RewardLength: 200
   reward_counter: 0
   minimumRewardTime: 200
   minimumDistance: 2
@@ -2273,7 +2273,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1913868726606073930}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 980d34c50a6ca594e9711aa1902f5509, type: 3}
   m_Name: 

@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEditor;
 using PupilLabs;
 
@@ -37,7 +36,9 @@ public class MainTask : MonoBehaviour
     [HideInInspector] GameObject player;
 
     // Black pixels (for scripts syncing)
-    private GameObject markerObject;
+    private GameObject markerObject_M;
+    private GameObject markerObject_R;
+    private GameObject markerObject_L;
 
     [Header("Saving info")]
     public string MEF;
@@ -186,8 +187,13 @@ public class MainTask : MonoBehaviour
         RT_timing_list = CreateRandomSequence(RT_timing.Length, trials_for_cond * target_positions.Count);
 
         // Black pixels (markers for scripts syncing)
-        markerObject = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        CreateMarkerBlack(markerObject, camM);
+        // Black pixels (markers for scripts syncing)
+        markerObject_M = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        CreateMarkerBlack(markerObject_M, camM);
+        markerObject_R = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        CreateMarkerBlack(markerObject_R, camL);
+        markerObject_L = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        CreateMarkerBlack(markerObject_L, camR);
 
     }
 
@@ -223,9 +229,6 @@ public class MainTask : MonoBehaviour
 
                 if (current_state == -1)
                 {
-                    // Activate black pixels for scripts syncing
-                    markerObject.SetActive(true);
-
                     // Disable movement
                     player.GetComponent<Movement>().restrict_backwards = 0;
                     player.GetComponent<Movement>().restrict_forwards = 0;
@@ -243,6 +246,11 @@ public class MainTask : MonoBehaviour
                     Debug.Log($"Current state: {current_state}");
 
                     current_condition = -1;
+
+                    // Switch ON black pixels objects
+                    markerObject_M.SetActive(true);
+                    markerObject_R.SetActive(true);
+                    markerObject_L.SetActive(true);
 
                     //Beginning routine
                     lastevent = Time.time;
@@ -269,9 +277,10 @@ public class MainTask : MonoBehaviour
                     // Move to state 0
                     current_state = 0;
 
-                    // Save and Destroy black pixels objects before passing to next state
-                    experiment.GetComponent<Saver>().addObjectEnd(markerObject.GetInstanceID().ToString());
-                    Destroy(markerObject);
+                    // Switch OFF black pixels objects
+                    markerObject_M.SetActive(false);
+                    markerObject_R.SetActive(false);
+                    markerObject_L.SetActive(false);
 
                 }
                 #endregion
@@ -313,6 +322,9 @@ public class MainTask : MonoBehaviour
                     {
                         changeTargetMaterial(targets[i], initial_grey);      
                     }
+
+                    condition_list.ForEach(x => Debug.Log($"COND {x}"));
+                    //Debug.LogWarning($"CONDITION {condition_list}");
 
                     // Choose the correct target
                     current_condition = condition_list[0];
@@ -474,6 +486,16 @@ public class MainTask : MonoBehaviour
                     // Check if collided object is the correct one
                     if (player.GetComponent<Movement>().CollidedObject.transform.position == CorrectTargetCurrentPosition)
                     {
+                        // Change target material (juicy mat is grey ball)
+                        for (int i = 0; i < targets.Length; i++)
+                        {
+                            if (targets[i].name == player.GetComponent<Movement>().CollidedObject.name)
+                            {
+                                changeTargetMaterial(targets[i], final_grey);
+                            }
+
+                        }
+
                         // Go to second RT
                         current_state = 5;
                     }
@@ -483,18 +505,6 @@ public class MainTask : MonoBehaviour
                         current_state = -99;
                     }
 
-
-                    // Change target material (juicy mat is grey ball)
-                    for (int i = 0; i < targets.Length; i++)
-                    {
-                        if (targets[i].name == player.GetComponent<Movement>().CollidedObject.name)
-                        {
-                            changeTargetMaterial(targets[i], final_grey);
-                        }
-                    }
-
-                    // Go to second RT
-                    current_state = 5;
                 }
 
                 #endregion
@@ -529,20 +539,7 @@ public class MainTask : MonoBehaviour
                 // MEF stops moving
                 if (!isMoving)
                 {
-                    // Change target material (eaten mat is white ball)
-                    for (int i = 0; i < targets.Length; i++)
-                    {
-                        if (targets[i].name == player.GetComponent<Movement>().CollidedObject.name)
-                        {
-                            changeTargetMaterial(targets[i], white);
-                        }
-                    }
-
-                    // Go to reward
-                    if ((Time.time - lastevent) >= 1f)
-                    {
-                        current_state = 99;
-                    }
+                    current_state = 99;
                 }
 
 
@@ -606,13 +603,21 @@ public class MainTask : MonoBehaviour
                 #region State Beginning
                 if (last_state != current_state)
                 {
+                    // Change target material (eaten mat is white ball)
+                    for (int i = 0; i < targets.Length; i++)
+                    {
+                        if (targets[i].name == player.GetComponent<Movement>().CollidedObject.name)
+                        {
+                            changeTargetMaterial(targets[i], white);
+                        }
+                    }
 
                     Debug.Log("TRIAL DONE");
                     GetComponent<Saver>().addObjectEnd(player.GetComponent<Movement>().CollidedObject.name);
 
                     reset_win();
 
-                    //Beginning routine
+                    // Beginning routine
                     lastevent = Time.time;
                     last_state = current_state;
 
@@ -626,8 +631,14 @@ public class MainTask : MonoBehaviour
                 #endregion
 
                 #region State End
-                if ((Time.time - lastevent) >= RewardLength)
+                if ((Time.time - lastevent) >= RewardLength_in_sec)
                 {
+                    // Disable targets
+                    hideTargets(targets);
+
+                    // Reset position
+                    reset_position();
+
                     current_state = -1;
                 }
                 #endregion
@@ -646,6 +657,11 @@ public class MainTask : MonoBehaviour
 
     void OnApplicationQuit()
     {
+        // Save and Destroy black pixels objects
+        SaveandDestroyMarkerBlack(markerObject_M);
+        SaveandDestroyMarkerBlack(markerObject_R);
+        SaveandDestroyMarkerBlack(markerObject_L);
+
         ardu.SendStopRecordingOE();
         Debug.Log("END OF SESSION");
         QuitGame();
@@ -667,14 +683,8 @@ public class MainTask : MonoBehaviour
 
     void reset_win()
     {
-        // Disable targets
-        hideTargets(targets);
-
         // Send reward
         ardu.SendReward(RewardLength);
-
-        // Reset position
-        reset_position();
 
         // Count trial
         trials_win++;
@@ -723,9 +733,11 @@ public class MainTask : MonoBehaviour
     public List<int> CreateRandomSequence(int n, int k) //n, number of elements; k, length of the required vector
     {
         var vector = new List<int>();
+        System.Random rnd = new System.Random(); // Create a new Random instance
+
         for (int i = 0; i < Math.Floor((double)k / n) + 1; i++)
         {
-            var tmp = Enumerable.Range(0, n).OrderBy(x => UnityEngine.Random.Range(0, n)).ToList();
+            var tmp = Enumerable.Range(0, n).OrderBy(x => rnd.Next(n)).ToList();
             vector.AddRange(tmp);
         }
 
@@ -865,15 +877,14 @@ public class MainTask : MonoBehaviour
 
     #endregion
 
-    private void CreateMarkerBlack(GameObject markerObj, Camera mainCamera)
+    private void CreateMarkerBlack(GameObject markerObj, Camera Camera)
     {
-
         // Set the position and scale of the Quad
-        markerObj.transform.position = mainCamera.transform.position + mainCamera.transform.forward * 1.0f;
-        markerObj.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
+        markerObj.transform.position = Camera.transform.position + Camera.transform.forward * 1.0f;
+        markerObj.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
 
         // Set the Quad to face the camera
-        markerObj.transform.LookAt(mainCamera.transform);
+        markerObj.transform.LookAt(Camera.transform);
         markerObj.transform.Rotate(0, 180, 0);
 
         // Create a new Material with a pure black color
@@ -899,4 +910,11 @@ public class MainTask : MonoBehaviour
                         markerObj.transform.localScale.x, markerObj.transform.localScale.y, markerObj.transform.localScale.z);
 
     }
+
+    private void SaveandDestroyMarkerBlack(GameObject markerObj)
+    {
+        experiment.GetComponent<Saver>().addObjectEnd(markerObj.GetInstanceID().ToString());
+        Destroy(markerObj);
+    }
+
 }
