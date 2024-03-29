@@ -57,7 +57,6 @@ public class MainTask : MonoBehaviour
     [HideInInspector] public float minimumDistance; //to get juicy
 
     [Header("Trials Info")]
-    public string file_name_positions;
     // States
     [System.NonSerialized] public int current_state;
     private int last_state;
@@ -79,8 +78,18 @@ public class MainTask : MonoBehaviour
     private bool first_frame;
 
     [Header("Target Info")]
+    public string file_name_positions;
     // List, because it is changing size during the runtime
     public List<Vector3> target_positions = new List<Vector3>();
+    public settingsEnum Target_settings = new settingsEnum();/*--------------------------------------->> CHANGE TO TAKE CSV AND THAT'S IT, WRITE TO RANDOMIZE ON LINEAR ROWS */
+    public enum settingsEnum
+    {
+        RandomThree,
+        MiddleThree,
+        Six,
+        All
+    };
+    [HideInInspector] public bool randomize_balls = false;
     GameObject[] targets;
     [System.NonSerialized] public GameObject TargetPrefab;
     [System.NonSerialized] public Vector3 CorrectTargetCurrentPosition;
@@ -130,6 +139,10 @@ public class MainTask : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // Generate random seed
+        System.Random rand = new System.Random();
+        seed = rand.Next();
+
         // Setup
         UnityEngine.Random.InitState(seed);
         System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
@@ -175,7 +188,7 @@ public class MainTask : MonoBehaviour
 
         // Import targets coordinates from csv file into target_positions list
         // and initiate the targets in a disable state (i.e invisible)
-        InstantiateTargets(target_positions);
+        InstantiateTargets(target_positions, Target_settings);
 
         // Define number of trials per each target
         trials_for_target = new int[target_positions.Count];
@@ -323,9 +336,6 @@ public class MainTask : MonoBehaviour
                         changeTargetMaterial(targets[i], initial_grey);      
                     }
 
-                    condition_list.ForEach(x => Debug.Log($"COND {x}"));
-                    //Debug.LogWarning($"CONDITION {condition_list}");
-
                     // Choose the correct target
                     current_condition = condition_list[0];
                     CorrectTargetCurrentPosition = target_positions[current_condition];
@@ -356,7 +366,7 @@ public class MainTask : MonoBehaviour
                     Debug.Log($"Current state: {current_state}");
 
                     // Enable targets
-                    showTargets(targets);
+                    showTargets(targets, randomize_balls);
 
                     //Beginning routine
                     lastevent = Time.time;
@@ -733,11 +743,10 @@ public class MainTask : MonoBehaviour
     public List<int> CreateRandomSequence(int n, int k) //n, number of elements; k, length of the required vector
     {
         var vector = new List<int>();
-        System.Random rnd = new System.Random(); // Create a new Random instance
 
         for (int i = 0; i < Math.Floor((double)k / n) + 1; i++)
         {
-            var tmp = Enumerable.Range(0, n).OrderBy(x => rnd.Next(n)).ToList();
+            var tmp = Enumerable.Range(0, n).OrderBy(x => UnityEngine.Random.Range(0, n)).ToList();
             vector.AddRange(tmp);
         }
 
@@ -817,26 +826,48 @@ public class MainTask : MonoBehaviour
         }
     }
 
-    private void InstantiateTargets(List<Vector3> target_positions)
+    private void InstantiateTargets(List<Vector3> target_positions, settingsEnum Target_settings)
     {
 
         // Import targets coordinates from csv file into target_positions list
         LoadPositionsFromCSV(target_positions);
-       
+
+        // Filter targets based on Target settings ---------------------------------------------------------------------------------------------------------------------------------------------------->> CHANGE 
+        float[] fixed_orientations = { 160, 0, -160, 0, 0, 0, 0, 0, 0 };
+        if (Target_settings == settingsEnum.All && Target_settings == settingsEnum.RandomThree)
+        {
+            // Do nothing
+        }
+        else if (Target_settings == settingsEnum.RandomThree)
+        {
+            randomize_balls = true;
+        }
+        else if (Target_settings == settingsEnum.MiddleThree)
+        {
+            target_positions = target_positions.Skip(3).Take(3).ToList();
+            fixed_orientations = fixed_orientations.Skip(3).Take(3).ToArray();
+        }
+        else if (Target_settings == settingsEnum.Six)
+        {
+            target_positions = target_positions.Take(6).ToList();
+            fixed_orientations = fixed_orientations.Take(6).ToArray();
+        }
+
         // Instantiate targets (switched off)
         targets = new GameObject[target_positions.Count];
+
         for (int i = 0; i < targets.Length; i++)
         {
             // Instantiate
-            targets[i] = Instantiate(TargetPrefab, target_positions[i], Quaternion.Euler(0, 0, 0), environment.transform); // TargetPrefab.transform.rotation , environment.transform);
-            targets[i].name = $"{TargetPrefab.name}_{i.ToString()}";
+            targets[i] = Instantiate(TargetPrefab, target_positions[i], Quaternion.Euler(0, fixed_orientations[i], 0), environment.transform);
+            targets[i].name = $"{TargetPrefab.name}_" + i.ToString();
 
             // Disable (make invisible)
             targets[i].GetComponent<MeshRenderer>().enabled = false;
 
             // Add target to data to be saved
             GetComponent<Saver>().addObject(targets[i].name,
-                "Target", // target_positions[i].x, target_positions[i].z, 0, "Position");
+                "Target",
                 targets[i].transform.position.x,
                 targets[i].transform.position.y,
                 targets[i].transform.position.z,
@@ -850,10 +881,22 @@ public class MainTask : MonoBehaviour
         }
     }
 
-    private void showTargets(GameObject[] targets)
+    private void showTargets(GameObject[] targets, bool randomize)
     {
 
-        for (int i = 0; i < targets.Length; i++)
+        // Randomize which balls to show -------------------------------------------------------------------------------->> CHANGE
+        int i = 0;
+        int row = targets.Length;
+        if (randomize)
+        {
+            // Select group to show, based on seed
+            int[] balls_groups = { 3, 6, 9 };
+            int index = UnityEngine.Random.Range(0, balls_groups.Length);
+            row = balls_groups[index];
+            i = (row - 3);
+        }
+
+        for (; i < row; i++)
         {
             // Enable (make visible)
             targets[i].GetComponent<MeshRenderer>().enabled = true;

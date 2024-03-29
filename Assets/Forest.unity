@@ -1045,12 +1045,14 @@ MonoBehaviour:
   reward_counter: 0
   minimumRewardTime: 200
   minimumDistance: 2
-  file_name_positions: custom_test
   trials_win: 0
   trials_lose: 0
   trials_for_target: 
   trials_for_cond: 5
+  file_name_positions: 9_balls_positions
   target_positions: []
+  Target_settings: 2
+  randomize_balls: 0
   FREE_timing:
   - 1
   DELAY_timing:
