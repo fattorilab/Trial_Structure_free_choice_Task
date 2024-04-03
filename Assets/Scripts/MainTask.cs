@@ -74,8 +74,10 @@ public class MainTask : MonoBehaviour
     //
     private float lastevent;
     private string identifier;
-    private bool isMoving = false;
     private bool first_frame;
+    // Moving timer
+    private static bool isMoving = false;
+    private static Diagnostics.Stopwatch stopwatch = new Diagnostics.Stopwatch();
 
     [Header("Target Info")]
     public string file_name_positions;
@@ -385,7 +387,7 @@ public class MainTask : MonoBehaviour
 
                 #region State End
                 // MEF required to be static for a minimum time (i.e. FREE_duration)
-                if ((Time.time - lastevent) >= FREE_duration && !isMoving)
+                if (notMovingForTime(FREE_duration))
                 {
                     current_state = 2;
                 }
@@ -920,6 +922,8 @@ public class MainTask : MonoBehaviour
 
     #endregion
 
+    #region Manage black marker
+
     private void CreateMarkerBlack(GameObject markerObj, Camera Camera)
     {
         // Set the position and scale of the Quad
@@ -958,6 +962,31 @@ public class MainTask : MonoBehaviour
     {
         experiment.GetComponent<Saver>().addObjectEnd(markerObj.GetInstanceID().ToString());
         Destroy(markerObj);
+    }
+
+    #endregion
+
+    private static bool notMovingForTime(float seconds)
+    {
+        if (!isMoving)
+        {
+            if (!stopwatch.IsRunning)
+            {
+                stopwatch.Start();
+            }
+
+            if (stopwatch.Elapsed.TotalSeconds > seconds)
+            {
+                stopwatch.Reset();
+                return true;
+            }
+        }
+        else
+        {
+            stopwatch.Reset();
+        }
+
+        return false;
     }
 
 }
