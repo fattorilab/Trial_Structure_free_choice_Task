@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Diagnostics = System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -43,7 +44,6 @@ public class MainTask : MonoBehaviour
     [Header("Saving info")]
     public string MEF;
     public string path_to_data = "C:/Users/admin/Desktop/Registrazioni_VR/";
-    public bool RECORD_EYES;
     [System.NonSerialized] public int lastIDFromDB;
     [HideInInspector] public int seed = 12345;
     [HideInInspector] public long starttime = 0;
@@ -53,8 +53,6 @@ public class MainTask : MonoBehaviour
     public int RewardLength = 50;
     float RewardLength_in_sec; // Formatting
     public int reward_counter = 0; //just for having this information readibily accessible
-    public int minimumRewardTime; //delay before juicy ??unnecessary??
-    [HideInInspector] public float minimumDistance; //to get juicy
 
     [Header("Trials Info")]
     // States
@@ -94,7 +92,7 @@ public class MainTask : MonoBehaviour
     [HideInInspector] public bool randomize_balls = false;
     GameObject[] targets;
     [System.NonSerialized] public GameObject TargetPrefab;
-    [System.NonSerialized] public Vector3 CorrectTargetCurrentPosition;
+    public Vector3 CorrectTargetCurrentPosition;
 
     #region Materials
     [Header("Target Materials")]
@@ -494,6 +492,7 @@ public class MainTask : MonoBehaviour
 
                 if (player.GetComponent<Movement>().HasCollided) // If collision happened
                 {
+                    Debug.LogWarning("COLLIDED WITH: " + player.GetComponent<Movement>().CollidedObject.name);
 
                     // Check if collided object is the correct one
                     if (player.GetComponent<Movement>().CollidedObject.transform.position == CorrectTargetCurrentPosition)
@@ -615,7 +614,11 @@ public class MainTask : MonoBehaviour
                 #region State Beginning
                 if (last_state != current_state)
                 {
-                    // Change target material (eaten mat is white ball)
+                    // Beginning routine
+                    lastevent = Time.time;
+                    last_state = current_state;
+
+                    // Change target material
                     for (int i = 0; i < targets.Length; i++)
                     {
                         if (targets[i].name == player.GetComponent<Movement>().CollidedObject.name)
@@ -628,10 +631,6 @@ public class MainTask : MonoBehaviour
                     GetComponent<Saver>().addObjectEnd(player.GetComponent<Movement>().CollidedObject.name);
 
                     reset_win();
-
-                    // Beginning routine
-                    lastevent = Time.time;
-                    last_state = current_state;
 
                 }
                 #endregion
@@ -707,6 +706,12 @@ public class MainTask : MonoBehaviour
         FREE_timing_list.RemoveAt(0);
         DELAY_timing_list.RemoveAt(0);
         RT_timing_list.RemoveAt(0);
+
+        // Enable random change of balls row for next trial
+        if (Target_settings == settingsEnum.RandomThree)
+        {
+            randomize_balls = true;
+        }
     }
 
     void reset_lose()
@@ -717,13 +722,11 @@ public class MainTask : MonoBehaviour
         // Reset position
         reset_position();
 
-        // Reset conditions
-        condition_list = SwapVector(condition_list);
-        FREE_timing_list = SwapVector(FREE_timing_list); //not strictly necessary, but better for coherence...
-        DELAY_timing_list = SwapVector(DELAY_timing_list);
-        RT_timing_list = SwapVector(RT_timing_list);
-
+        // Count trial
         trials_lose++;
+
+        // Disable random change of balls row for next trial
+        randomize_balls = false;
     }
 
     void reset_position()
@@ -836,7 +839,7 @@ public class MainTask : MonoBehaviour
 
         // Filter targets based on Target settings ---------------------------------------------------------------------------------------------------------------------------------------------------->> CHANGE 
         float[] fixed_orientations = { 160, 0, -160, 0, 0, 0, 0, 0, 0 };
-        if (Target_settings == settingsEnum.All && Target_settings == settingsEnum.RandomThree)
+        if (Target_settings == settingsEnum.All)
         {
             // Do nothing
         }
@@ -866,6 +869,7 @@ public class MainTask : MonoBehaviour
 
             // Disable (make invisible)
             targets[i].GetComponent<MeshRenderer>().enabled = false;
+            targets[i].GetComponent<Collider>().enabled = false;
 
             // Add target to data to be saved
             GetComponent<Saver>().addObject(targets[i].name,
@@ -886,22 +890,49 @@ public class MainTask : MonoBehaviour
     private void showTargets(GameObject[] targets, bool randomize)
     {
 
+        /* USE CONDITION LIST TO SELECT THE ROW
+            for  i = 1; i <= targets.length; i++
+
+                if condition_list[0] == targets[i].transform.position
+
+                    i <= 3
+                        row = 3;
+                    i > 3 && i <= 6
+                        row = 6;
+                    i > 6 && i <= 9
+                        row = 9;
+
+            */
+
         // Randomize which balls to show -------------------------------------------------------------------------------->> CHANGE
         int i = 0;
         int row = targets.Length;
-        if (randomize)
+
+        // In case of Random Three task (i.e random row of 3)
+        if (Target_settings == settingsEnum.RandomThree)
         {
-            // Select group to show, based on seed
             int[] balls_groups = { 3, 6, 9 };
             int index = UnityEngine.Random.Range(0, balls_groups.Length);
-            row = balls_groups[index];
-            i = (row - 3);
+            Debug.LogWarning("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO: " + index);
+
+            if (randomize)
+            {
+
+                index = UnityEngine.Random.Range(0, balls_groups.Length);
+                Debug.LogWarning("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO: " + index);
+
+                // Select row to show, based on seed
+                row = balls_groups[index];
+                i = (row - 3);
+            }
+            Debug.LogWarning("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO: " + index);
         }
 
         for (; i < row; i++)
         {
-            // Enable (make visible)
+            // Enable (make visible and reactive)
             targets[i].GetComponent<MeshRenderer>().enabled = true;
+            targets[i].GetComponent<Collider>().enabled = true;
         }
     }
 
@@ -910,8 +941,10 @@ public class MainTask : MonoBehaviour
 
         for (int i = 0; i < targets.Length; i++)
         {
-            // Disable (make invisible)
+            // Disable (make invisible and non reactive)
             targets[i].GetComponent<MeshRenderer>().enabled = false;
+            targets[i].GetComponent<Collider>().enabled = false;
+
         }
     }
 

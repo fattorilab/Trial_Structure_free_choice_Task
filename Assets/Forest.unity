@@ -1043,8 +1043,6 @@ MonoBehaviour:
   frame_number: 0
   RewardLength: 200
   reward_counter: 0
-  minimumRewardTime: 200
-  minimumDistance: 2
   trials_win: 0
   trials_lose: 0
   trials_for_target: 
@@ -1053,6 +1051,7 @@ MonoBehaviour:
   target_positions: []
   Target_settings: 2
   randomize_balls: 0
+  CorrectTargetCurrentPosition: {x: 0, y: 0, z: 0}
   FREE_timing:
   - 1
   DELAY_timing:
