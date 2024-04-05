@@ -860,19 +860,6 @@ public class MainTask : MonoBehaviour
             // Set as inactive (invisible)
             targets[i].SetActive(false);
 
-            // Add target to data to be saved
-            GetComponent<Saver>().addObject(targets[i].name,
-                "Target",
-                targets[i].transform.position.x,
-                targets[i].transform.position.y,
-                targets[i].transform.position.z,
-                TargetPrefab.transform.rotation[0],
-                TargetPrefab.transform.rotation[1],
-                TargetPrefab.transform.rotation[2],
-                targets[i].transform.localScale[0],
-                targets[i].transform.localScale[1],
-                targets[i].transform.localScale[2]
-                );
         }
     }
 
@@ -916,6 +903,20 @@ public class MainTask : MonoBehaviour
             // Set as active (visible)
             targets[i].SetActive(true);
 
+            // Save target as soon as becomes visible
+            GetComponent<Saver>().addObject(targets[i].name,
+                "Target",
+                targets[i].transform.position.x,
+                targets[i].transform.position.y,
+                targets[i].transform.position.z,
+                TargetPrefab.transform.rotation[0],
+                TargetPrefab.transform.rotation[1],
+                TargetPrefab.transform.rotation[2],
+                targets[i].transform.localScale[0],
+                targets[i].transform.localScale[1],
+                targets[i].transform.localScale[2]
+                );
+
         }
     }
 
@@ -926,6 +927,9 @@ public class MainTask : MonoBehaviour
         {
             // Set as inactive (invisible)
             targets[i].SetActive(false);
+
+            // Save target end when it stops being visible
+            GetComponent<Saver>().addObjectEnd(targets[i].name);
         }
     }
 

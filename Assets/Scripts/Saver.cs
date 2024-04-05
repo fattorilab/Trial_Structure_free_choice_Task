@@ -261,8 +261,12 @@ public class Saver : MonoBehaviour
 
     public void addObjectEnd(string identifier)
     {
-        //Debug.Log("Trying to remove " + identifier);
-        // Someone broke the function. Please leave this function alone! All the main saving was broken. Gianni
+
+        long milliseconds = System.DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        if (main != null)
+        {
+            if (main.starttime == 0) { main.starttime = milliseconds; starttime = main.starttime; }
+        }
 
         bool found = false;
 
