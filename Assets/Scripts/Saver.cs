@@ -199,7 +199,7 @@ public class Saver : MonoBehaviour
         // Condition
         PerFrameData[(PerFrameData.Count - 1)].Add((main.current_condition).ToString("F5"));
         // State
-        PerFrameData[(PerFrameData.Count - 1)].Add((main.current_state).ToString("F5"));
+        PerFrameData[(PerFrameData.Count - 1)].Add((main.last_state).ToString("F5"));
         PerFrameData[(PerFrameData.Count - 1)].Add(main.error_state);
         // Arduino
         PerFrameData[(PerFrameData.Count - 1)].Add((ardu.reward_counter).ToString("F5"));
