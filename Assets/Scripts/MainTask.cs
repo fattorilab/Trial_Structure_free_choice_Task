@@ -57,7 +57,7 @@ public class MainTask : MonoBehaviour
     [Header("Trials Info")]
     // States
     [System.NonSerialized] public int current_state;
-    private int last_state;
+    [System.NonSerialized] public int last_state;
     [System.NonSerialized] public string error_state;
     // Trials
     [System.NonSerialized] public int current_trial;
