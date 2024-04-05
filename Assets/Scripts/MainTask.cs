@@ -258,6 +258,9 @@ public class MainTask : MonoBehaviour
                 {
                     Debug.Log($"Current state: {current_state}");
 
+                    // Check if all conditions are done and end the session
+                    if (condition_list.Count == 0) { QuitGame(); }
+
                     current_condition = -1;
 
                     // Switch ON black pixels objects
@@ -633,8 +636,6 @@ public class MainTask : MonoBehaviour
                 #endregion
 
                 #region State Body
-
-                if (condition_list.Count == 0) { QuitGame();  }
 
                 #endregion
 
