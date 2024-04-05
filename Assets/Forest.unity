@@ -1037,7 +1037,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MEF: ciuffa
   path_to_data: C:\Users\edoar\Documents\Fattori_lab\test_data_folder
-  RECORD_EYES: 0
   seed: 1
   starttime: 0
   frame_number: 0
@@ -1049,7 +1048,7 @@ MonoBehaviour:
   trials_for_cond: 5
   file_name_positions: 9_balls_positions
   target_positions: []
-  Target_settings: 2
+  Target_settings: 0
   randomize_balls: 0
   CorrectTargetCurrentPosition: {x: 0, y: 0, z: 0}
   FREE_timing:
@@ -1075,7 +1074,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ardu_working: 0
-  testing: 1
+  testing: 0
   COM: COM5
   ax1: 0
   ax2: 0
@@ -1862,7 +1861,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30

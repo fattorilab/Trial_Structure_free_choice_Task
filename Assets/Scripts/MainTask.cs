@@ -330,7 +330,7 @@ public class MainTask : MonoBehaviour
                 {
                     // Prepare everything for next trial
 
-                    // Change target material (neutral mat is the initial grey ball )
+                    // Change target material
                     for (int i = 0; i < targets.Length; i++)
                     {
                         changeTargetMaterial(targets[i], initial_grey);      
@@ -366,7 +366,7 @@ public class MainTask : MonoBehaviour
                     Debug.Log($"Current state: {current_state}");
 
                     // Enable targets
-                    showTargets(targets, randomize_balls);
+                    showTargets(targets);
 
                     //Beginning routine
                     lastevent = Time.time;
@@ -395,14 +395,14 @@ public class MainTask : MonoBehaviour
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            case 2: //DELAY
+            case 2: // DELAY
 
                 #region State Beginning
                 if (last_state != current_state)
                 {
                     Debug.Log($"Current state: {current_state}");
 
-                    // Change target material (green dot)
+                    // Change target material
                     for (int i = 0; i < targets.Length; i++)
                     {
                         changeTargetMaterial(targets[i], green_dot);       
@@ -435,23 +435,23 @@ public class MainTask : MonoBehaviour
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            case 3: //RT
+            case 3: // RT
 
                 #region State Beginning
                 if (last_state != current_state)
                 {
                     Debug.Log($"Current state: {current_state}");
 
-                    // Change target material (red dot)
-                    for (int i = 0; i < targets.Length; i++)
-                    {
-                        changeTargetMaterial(targets[i], red_dot);
-                    }
-
                     //Beginning routine
                     lastevent = Time.time;
                     last_state = current_state;
                     error_state = "";
+
+                    // Change target material
+                    for (int i = 0; i < targets.Length; i++)
+                    {
+                        changeTargetMaterial(targets[i], red_dot);
+                    }
                 }
                 #endregion
 
@@ -492,12 +492,10 @@ public class MainTask : MonoBehaviour
 
                 if (player.GetComponent<Movement>().HasCollided) // If collision happened
                 {
-                    Debug.LogWarning("COLLIDED WITH: " + player.GetComponent<Movement>().CollidedObject.name);
-
                     // Check if collided object is the correct one
                     if (player.GetComponent<Movement>().CollidedObject.transform.position == CorrectTargetCurrentPosition)
                     {
-                        // Change target material (juicy mat is grey ball)
+                        // Change target material
                         for (int i = 0; i < targets.Length; i++)
                         {
                             if (targets[i].name == player.GetComponent<Movement>().CollidedObject.name)
@@ -553,8 +551,7 @@ public class MainTask : MonoBehaviour
                     current_state = 99;
                 }
 
-
-                // If player exits the collision (i.e. contact time lower than reaction time)
+                // If player exits the collision (i.e. contact time lower than reaction time) ------> MAKE COLLISION EXIT LESS SENSITIVE, EXIT NEEDS TO BE REGISTERED ONLY AFTER RT PASSED
                 if (!player.GetComponent<Movement>().HasCollided)
                 {
                     error_state = "ERR: Collision ended early in 2nd RT";
@@ -582,14 +579,14 @@ public class MainTask : MonoBehaviour
                 #region State Beginning
                 if (last_state != current_state)
                 {
+                    //Beginning routine
+                    lastevent = Time.time;
+                    last_state = current_state;
+
                     Debug.Log($"Current state: {current_state}");
                     Debug.Log(error_state);
 
                     reset_lose();
-
-                    //Beginning routine
-                    lastevent = Time.time;
-                    last_state = current_state;
                 }
                 #endregion
 
@@ -694,6 +691,9 @@ public class MainTask : MonoBehaviour
 
     void reset_win()
     {
+        // Reset collision
+        player.GetComponent<Movement>().resetCollision();
+
         // Send reward
         ardu.SendReward(RewardLength);
 
@@ -707,15 +707,11 @@ public class MainTask : MonoBehaviour
         DELAY_timing_list.RemoveAt(0);
         RT_timing_list.RemoveAt(0);
 
-        // Enable random change of balls row for next trial
-        if (Target_settings == settingsEnum.RandomThree)
-        {
-            randomize_balls = true;
-        }
     }
 
     void reset_lose()
     {
+
         // Disable targets
         hideTargets(targets);
 
@@ -725,8 +721,6 @@ public class MainTask : MonoBehaviour
         // Count trial
         trials_lose++;
 
-        // Disable random change of balls row for next trial
-        randomize_balls = false;
     }
 
     void reset_position()
@@ -784,7 +778,6 @@ public class MainTask : MonoBehaviour
         FREE_duration = FREE_timing[randomIndex_FREE];
         DELAY_duration = DELAY_timing[randomIndex_DELAY];
         RT_maxduration = RT_timing[randomIndex_RT];
-
     }
 
 #endregion
@@ -839,13 +832,9 @@ public class MainTask : MonoBehaviour
 
         // Filter targets based on Target settings ---------------------------------------------------------------------------------------------------------------------------------------------------->> CHANGE 
         float[] fixed_orientations = { 160, 0, -160, 0, 0, 0, 0, 0, 0 };
-        if (Target_settings == settingsEnum.All)
+        if (Target_settings == settingsEnum.All && Target_settings == settingsEnum.RandomThree)
         {
             // Do nothing
-        }
-        else if (Target_settings == settingsEnum.RandomThree)
-        {
-            randomize_balls = true;
         }
         else if (Target_settings == settingsEnum.MiddleThree)
         {
@@ -867,9 +856,8 @@ public class MainTask : MonoBehaviour
             targets[i] = Instantiate(TargetPrefab, target_positions[i], Quaternion.Euler(0, fixed_orientations[i], 0), environment.transform);
             targets[i].name = $"{TargetPrefab.name}_" + i.ToString();
 
-            // Disable (make invisible)
-            targets[i].GetComponent<MeshRenderer>().enabled = false;
-            targets[i].GetComponent<Collider>().enabled = false;
+            // Set as inactive (invisible)
+            targets[i].SetActive(false);
 
             // Add target to data to be saved
             GetComponent<Saver>().addObject(targets[i].name,
@@ -887,22 +875,8 @@ public class MainTask : MonoBehaviour
         }
     }
 
-    private void showTargets(GameObject[] targets, bool randomize)
+    private void showTargets(GameObject[] targets)
     {
-
-        /* USE CONDITION LIST TO SELECT THE ROW
-            for  i = 1; i <= targets.length; i++
-
-                if condition_list[0] == targets[i].transform.position
-
-                    i <= 3
-                        row = 3;
-                    i > 3 && i <= 6
-                        row = 6;
-                    i > 6 && i <= 9
-                        row = 9;
-
-            */
 
         // Randomize which balls to show -------------------------------------------------------------------------------->> CHANGE
         int i = 0;
@@ -912,39 +886,45 @@ public class MainTask : MonoBehaviour
         if (Target_settings == settingsEnum.RandomThree)
         {
             int[] balls_groups = { 3, 6, 9 };
-            int index = UnityEngine.Random.Range(0, balls_groups.Length);
-            Debug.LogWarning("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO: " + index);
 
-            if (randomize)
+            // Search for the next target position in the condition list (i.e. correct target)
+            for (int t = 0; t < targets.Length; t++)
             {
+                if (targets[t].transform.position == CorrectTargetCurrentPosition)
+                {
+                    // Get the nearest number higher/equal than t, and
+                    // divide by 3  to find index of the group that contains the target
+                    int index = (balls_groups.Where(x => x > t).DefaultIfEmpty().First() / 3) - 1;
 
-                index = UnityEngine.Random.Range(0, balls_groups.Length);
-                Debug.LogWarning("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO: " + index);
+                    // Select row to show, based on index
+                    row = balls_groups[index];
 
-                // Select row to show, based on seed
-                row = balls_groups[index];
-                i = (row - 3);
+                    // Loop over the 3 balls of the row
+                    i = (row - 3);
+
+                    // Exit the loop
+                    break;
+                }
             }
-            Debug.LogWarning("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO: " + index);
+
+
         }
 
         for (; i < row; i++)
         {
-            // Enable (make visible and reactive)
-            targets[i].GetComponent<MeshRenderer>().enabled = true;
-            targets[i].GetComponent<Collider>().enabled = true;
+            // Set as active (visible)
+            targets[i].SetActive(true);
+
         }
     }
 
     private void hideTargets(GameObject[] targets)
-    { 
+    {
 
         for (int i = 0; i < targets.Length; i++)
         {
-            // Disable (make invisible and non reactive)
-            targets[i].GetComponent<MeshRenderer>().enabled = false;
-            targets[i].GetComponent<Collider>().enabled = false;
-
+            // Set as inactive (invisible)
+            targets[i].SetActive(false);
         }
     }
 
