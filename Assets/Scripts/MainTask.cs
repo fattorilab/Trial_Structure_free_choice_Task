@@ -55,19 +55,20 @@ public class MainTask : MonoBehaviour
     public int reward_counter = 0; //just for having this information readibily accessible
 
     [Header("Trials Info")]
+    [Header("Trials Info")]
+    // Trials
+    public int trials_win;
+    public int trials_lose;
+    [System.NonSerialized] public int current_trial;
+    public int[] trials_for_target;
+    public int trials_for_cond = 1;
     // States
     [System.NonSerialized] public int current_state;
     [System.NonSerialized] public int last_state;
     [System.NonSerialized] public string error_state;
-    // Trials
-    [System.NonSerialized] public int current_trial;
-    public int trials_win;
-    public int trials_lose;
-    public int[] trials_for_target;
-    public int trials_for_cond = 1;
     // Conditions
     private int randomIndex;
-    [System.NonSerialized] public List<int> condition_list;
+    public List<int> condition_list;
     [System.NonSerialized] public int current_condition;
     //
     private float lastevent;
@@ -264,9 +265,9 @@ public class MainTask : MonoBehaviour
                     current_condition = -1;
 
                     // Switch ON black pixels objects
-                    markerObject_M.SetActive(true);
-                    markerObject_R.SetActive(true);
-                    markerObject_L.SetActive(true);
+                    showMarkerBlack(markerObject_M);
+                    showMarkerBlack(markerObject_R);
+                    showMarkerBlack(markerObject_L);
 
                     //Beginning routine
                     lastevent = Time.time;
@@ -294,9 +295,9 @@ public class MainTask : MonoBehaviour
                     current_state = 0;
 
                     // Switch OFF black pixels objects
-                    markerObject_M.SetActive(false);
-                    markerObject_R.SetActive(false);
-                    markerObject_L.SetActive(false);
+                    hideMarkerBlack(markerObject_M);
+                    hideMarkerBlack(markerObject_R);
+                    hideMarkerBlack(markerObject_L);
 
                 }
                 #endregion
@@ -554,7 +555,7 @@ public class MainTask : MonoBehaviour
                     current_state = 99;
                 }
 
-                // If player exits the collision (i.e. contact time lower than reaction time) ------> MAKE COLLISION EXIT LESS SENSITIVE, EXIT NEEDS TO BE REGISTERED ONLY AFTER RT PASSED
+                // If player exits the collision (i.e. contact time lower than reaction time)
                 if (!player.GetComponent<Movement>().HasCollided)
                 {
                     error_state = "ERR: Collision ended early in 2nd RT";
@@ -567,7 +568,7 @@ public class MainTask : MonoBehaviour
 
                 if ((Time.time - lastevent) >= second_RT_maxduration)
                 {
-                    error_state = "ERR: Not Moving in RT";
+                    error_state = "ERR: Keeps moving in 2nd RT";
                     current_state = -99;
                 }
 
@@ -666,13 +667,16 @@ public class MainTask : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        // Save and Destroy black pixels objects
-        SaveandDestroyMarkerBlack(markerObject_M);
-        SaveandDestroyMarkerBlack(markerObject_R);
-        SaveandDestroyMarkerBlack(markerObject_L);
+        // Destroy black pixels objects
+        Destroy(markerObject_M);
+        Destroy(markerObject_R);
+        Destroy(markerObject_L);
 
+        // Stop OpenEphys recording
         ardu.SendStopRecordingOE();
         Debug.Log("END OF SESSION");
+
+        // Stop the task
         QuitGame();
     }
 
@@ -712,6 +716,8 @@ public class MainTask : MonoBehaviour
 
     void reset_lose()
     {
+        // Reset collision
+        player.GetComponent<Movement>().resetCollision();
 
         // Disable targets
         hideTargets(targets);
@@ -839,12 +845,17 @@ public class MainTask : MonoBehaviour
         }
         else if (Target_settings == settingsEnum.MiddleThree)
         {
-            target_positions = target_positions.Skip(3).Take(3).ToList();
+            // Remove last 3 elements
+            target_positions.RemoveRange(6, 3);
+            // Remove first 3 elements
+            target_positions.RemoveRange(0, 3);
             fixed_orientations = fixed_orientations.Skip(3).Take(3).ToArray();
+
         }
         else if (Target_settings == settingsEnum.Six)
         {
-            target_positions = target_positions.Take(6).ToList();
+            // Remove last 3 elements
+            target_positions.RemoveRange(6, 3);
             fixed_orientations = fixed_orientations.Take(6).ToArray();
         }
 
@@ -922,14 +933,16 @@ public class MainTask : MonoBehaviour
 
     private void hideTargets(GameObject[] targets)
     {
-
         for (int i = 0; i < targets.Length; i++)
         {
-            // Set as inactive (invisible)
-            targets[i].SetActive(false);
+            if (targets[i].activeSelf == true)
+            {
+                // Set as inactive (invisible)
+                targets[i].SetActive(false);
 
-            // Save target end when it stops being visible
-            GetComponent<Saver>().addObjectEnd(targets[i].name);
+                // Save target end when it stops being visible
+                GetComponent<Saver>().addObjectEnd(targets[i].name);
+            }
         }
     }
 
@@ -967,19 +980,29 @@ public class MainTask : MonoBehaviour
         // Initially set the marker to be invisible
         markerObj.SetActive(false);
 
-        // Save object
+    }
+
+    private void showMarkerBlack(GameObject markerObj)
+    {
+        // Set active
+        markerObj.SetActive(true);
+
+        // // Save marker as soon as becomes visible
         string identifier = markerObj.GetInstanceID().ToString();
         experiment.GetComponent<Saver>().addObject(identifier, "Black_pixels",
                         markerObj.transform.position.x, markerObj.transform.position.y, markerObj.transform.position.z,
                         markerObj.transform.eulerAngles.x, markerObj.transform.eulerAngles.y, markerObj.transform.eulerAngles.z,
                         markerObj.transform.localScale.x, markerObj.transform.localScale.y, markerObj.transform.localScale.z);
-
     }
 
-    private void SaveandDestroyMarkerBlack(GameObject markerObj)
+    private void hideMarkerBlack(GameObject markerObj)
     {
-        experiment.GetComponent<Saver>().addObjectEnd(markerObj.GetInstanceID().ToString());
-        Destroy(markerObj);
+        // Set inactive
+        markerObj.SetActive(false);
+
+        // Save marker end when it stops being visible
+        GetComponent<Saver>().addObjectEnd(markerObj.GetInstanceID().ToString());
+
     }
 
     #endregion

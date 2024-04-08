@@ -1045,10 +1045,10 @@ MonoBehaviour:
   trials_win: 0
   trials_lose: 0
   trials_for_target: 
-  trials_for_cond: 5
+  trials_for_cond: 1
   file_name_positions: 9_balls_positions
   target_positions: []
-  Target_settings: 0
+  Target_settings: 3
   randomize_balls: 0
   CorrectTargetCurrentPosition: {x: 0, y: 0, z: 0}
   FREE_timing:

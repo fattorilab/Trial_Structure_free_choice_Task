@@ -95,10 +95,8 @@ public class Ardu : MonoBehaviour
         if (ardu_working)
         {
             ardu.sendSerial("R" + rewardTime.ToString());
-
+            Debug.Log("R" + rewardTime.ToString());
         }
-
-        Debug.Log("R" + rewardTime.ToString());
         reward_counter += 1;
     }
 
