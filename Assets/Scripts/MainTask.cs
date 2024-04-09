@@ -63,7 +63,7 @@ public class MainTask : MonoBehaviour
     public int[] trials_for_target;
     public int trials_for_cond = 1;
     // States
-    [System.NonSerialized] public int current_state;
+    public int current_state;
     [System.NonSerialized] public int last_state;
     [System.NonSerialized] public string error_state;
     // Conditions
@@ -286,10 +286,6 @@ public class MainTask : MonoBehaviour
                 #region State End (executed once upon exiting)
                 if ((Time.time - lastevent) > INTERTRIAL_duration)
                 {
-                    // Enable movement
-                    player.GetComponent<Movement>().restrict_backwards = 1;
-                    player.GetComponent<Movement>().restrict_forwards = 1;
-                    player.GetComponent<Movement>().restrict_horizontal = 1;
 
                     // Move to state 0
                     current_state = 0;
@@ -322,11 +318,6 @@ public class MainTask : MonoBehaviour
                 #endregion
 
                 #region State Body (executed every frame while in state)
-                // Prevent entering FREE state from a position different from initial
-                if (isMoving)
-                {
-                    reset_position();
-                }
                 #endregion
 
                 #region State End (executed once upon exiting)
@@ -334,11 +325,10 @@ public class MainTask : MonoBehaviour
                 {
                     // Prepare everything for next trial
 
-                    // Change target material
-                    for (int i = 0; i < targets.Length; i++)
-                    {
-                        changeTargetMaterial(targets[i], initial_grey);      
-                    }
+                    // Enable movement
+                    player.GetComponent<Movement>().restrict_backwards = 1;
+                    player.GetComponent<Movement>().restrict_forwards = 1;
+                    player.GetComponent<Movement>().restrict_horizontal = 1;
 
                     // Choose the correct target
                     current_condition = condition_list[0];
@@ -368,6 +358,12 @@ public class MainTask : MonoBehaviour
                 if (last_state != current_state) 
                 {
                     Debug.Log($"Current state: {current_state}");
+
+                    // Change target material
+                    for (int i = 0; i < targets.Length; i++)
+                    {
+                        changeTargetMaterial(targets[i], initial_grey);
+                    }
 
                     // Enable targets
                     showTargets(targets);
