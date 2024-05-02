@@ -1040,16 +1040,15 @@ MonoBehaviour:
   seed: 1
   starttime: 0
   frame_number: 0
-  RewardLength: 200
   reward_counter: 0
   trials_win: 0
   trials_lose: 0
   trials_for_target: 
   trials_for_cond: 1
+  condition_list: 
   file_name_positions: 9_balls_positions
   target_positions: []
   Target_settings: 3
-  randomize_balls: 0
   CorrectTargetCurrentPosition: {x: 0, y: 0, z: 0}
   FREE_timing:
   - 1
@@ -1793,15 +1792,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1913868724617376015}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 980d34c50a6ca594e9711aa1902f5509, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _width: 960
-  _height: 540
-  _preset: 0
-  _frameRate: 30
+  _width: 1280
+  _height: 720
+  _preset: 5
+  _frameRate: 60
   path_to_data_RecorderFrames: 
   path_to_video: 
 --- !u!54 &1913868725626146584
@@ -2097,15 +2096,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1913868726121276998}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 980d34c50a6ca594e9711aa1902f5509, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _width: 960
-  _height: 540
-  _preset: 0
-  _frameRate: 30
+  _width: 1280
+  _height: 720
+  _preset: 5
+  _frameRate: 60
   path_to_data_RecorderFrames: 
   path_to_video: 
 --- !u!20 &1913868726606073928
@@ -2273,15 +2272,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1913868726606073930}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 980d34c50a6ca594e9711aa1902f5509, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _width: 960
-  _height: 540
-  _preset: 0
-  _frameRate: 30
+  _width: 1280
+  _height: 720
+  _preset: 5
+  _frameRate: 60
   path_to_data_RecorderFrames: 
   path_to_video: 
 --- !u!1 &8026010967362893542

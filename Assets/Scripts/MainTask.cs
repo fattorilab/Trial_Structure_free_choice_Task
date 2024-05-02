@@ -15,6 +15,8 @@ public class MainTask : MonoBehaviour
 {
     #region Variables Declaration
 
+    #region GameObjects and components
+
     [SerializeField]
 
     [HideInInspector]
@@ -41,48 +43,67 @@ public class MainTask : MonoBehaviour
     private GameObject markerObject_R;
     private GameObject markerObject_L;
 
+    #endregion
+
+    #region Saving info
+
     [Header("Saving info")]
     public string MEF;
     public string path_to_data = "C:/Users/admin/Desktop/Registrazioni_VR/";
     [System.NonSerialized] public int lastIDFromDB;
-    [HideInInspector] public int seed = 12345;
+    private string identifier;
+    [HideInInspector] public int seed;
     [HideInInspector] public long starttime = 0;
     [HideInInspector] public int frame_number = 0;
 
+    #endregion
+
+    #region Reward info
+
     [Header("Reward")]
-    public int RewardLength = 50;
-    float RewardLength_in_sec; // Formatting
-    public int reward_counter = 0; //just for having this information readibily accessible
+    public static int RewardLength = 50;
+    [System.NonSerialized] private float RewardLength_in_sec = RewardLength / 1000f;
+    public int reward_counter = 0;
+
+    #endregion
+
+    #region Trials Info
 
     [Header("Trials Info")]
-    [Header("Trials Info")]
+
     // Trials
     public int trials_win;
     public int trials_lose;
     [System.NonSerialized] public int current_trial;
     public int[] trials_for_target;
     public int trials_for_cond = 1;
+
     // States
     public int current_state;
     [System.NonSerialized] public int last_state;
     [System.NonSerialized] public string error_state;
+
     // Conditions
     private int randomIndex;
     public List<int> condition_list;
     [System.NonSerialized] public int current_condition;
-    //
+
+    // Tracking events
     private float lastevent;
-    private string identifier;
     private bool first_frame;
+
     // Moving timer
     private static bool isMoving = false;
     private static Diagnostics.Stopwatch stopwatch = new Diagnostics.Stopwatch();
 
+    #endregion
+
+    #region Target Info
+
     [Header("Target Info")]
     public string file_name_positions;
-    // List, because it is changing size during the runtime
-    public List<Vector3> target_positions = new List<Vector3>();
-    public settingsEnum Target_settings = new settingsEnum();/*--------------------------------------->> CHANGE TO TAKE CSV AND THAT'S IT, WRITE TO RANDOMIZE ON LINEAR ROWS */
+    public List<Vector3> target_positions = new List<Vector3>(); // --> List, because changes size during runtime
+    public settingsEnum Target_settings = new settingsEnum();
     public enum settingsEnum
     {
         RandomThree,
@@ -90,20 +111,21 @@ public class MainTask : MonoBehaviour
         Six,
         All
     };
-    [HideInInspector] public bool randomize_balls = false;
     GameObject[] targets;
     [System.NonSerialized] public GameObject TargetPrefab;
     public Vector3 CorrectTargetCurrentPosition;
 
-    #region Materials
-    [Header("Target Materials")]
+    // Materials
     [System.NonSerialized] public Material initial_grey;
     [System.NonSerialized] public Material red;
     [System.NonSerialized] public Material green_dot;
     [System.NonSerialized] public Material red_dot;
     [System.NonSerialized] public Material final_grey;
     [System.NonSerialized] public Material white;
+
     #endregion
+
+    #region Epochs Info
 
     [Header("Epoches Info")]
     // Array, because is not changing size during the runtime
@@ -123,17 +145,27 @@ public class MainTask : MonoBehaviour
     public float MOVEMENT_maxduration = 6f;
     public float second_RT_maxduration = 2f;
 
+    #endregion 
+
+    #region Arduino Info
+
     [Header("Arduino Info")]
     [System.NonSerialized] public Ardu ardu;
     [System.NonSerialized] public float arduX;
     [System.NonSerialized] public float arduY;
 
+    #endregion
+
+    #region PupilLab Info
+
     [Header("PupilLab Info")]
-    [System.NonSerialized] public Vector2 centerRightPupilPx = new Vector2(float.NaN, float.NaN);  
-    [System.NonSerialized] public Vector2 centerLeftPupilPx = new Vector2(float.NaN, float.NaN);  
-    [System.NonSerialized] public float diameterRight = float.NaN;                 
-    [System.NonSerialized] public float diameterLeft = float.NaN;                   
+    [System.NonSerialized] public Vector2 centerRightPupilPx = new Vector2(float.NaN, float.NaN);
+    [System.NonSerialized] public Vector2 centerLeftPupilPx = new Vector2(float.NaN, float.NaN);
+    [System.NonSerialized] public float diameterRight = float.NaN;
+    [System.NonSerialized] public float diameterLeft = float.NaN;
     [System.NonSerialized] public bool pupilconnection;
+
+    #endregion
 
     #endregion
 
@@ -201,7 +233,6 @@ public class MainTask : MonoBehaviour
         RT_timing_list = CreateRandomSequence(RT_timing.Length, trials_for_cond * target_positions.Count);
 
         // Black pixels (markers for scripts syncing)
-        // Black pixels (markers for scripts syncing)
         markerObject_M = GameObject.CreatePrimitive(PrimitiveType.Quad);
         CreateMarkerBlack(markerObject_M, camM);
         markerObject_R = GameObject.CreatePrimitive(PrimitiveType.Quad);
@@ -229,6 +260,10 @@ public class MainTask : MonoBehaviour
 
         // Check if the player is moving the joystick
         isMoving = player.GetComponent<Movement>().keypressed;
+
+        // Manual reward
+        if (Input.GetKeyDown("space")) { ardu.SendReward(RewardLength); }
+        reward_counter = ardu.reward_counter;
 
         #region StateMachine
 
@@ -655,11 +690,12 @@ public class MainTask : MonoBehaviour
 
         #endregion
 
-        // Manual reward
-        if (Input.GetKeyDown("space"))        { ardu.SendReward(RewardLength); }
-        reward_counter = ardu.reward_counter;
 
     }
+
+    #region Methods
+
+    #region Quit
 
     void OnApplicationQuit()
     {
@@ -688,7 +724,9 @@ public class MainTask : MonoBehaviour
 #endif
     }
 
-    #region Reset methods
+    #endregion
+
+    #region Reset
 
     void reset_win()
     {
@@ -740,7 +778,7 @@ public class MainTask : MonoBehaviour
 
     #endregion
 
-    #region Manage conditions
+    #region Conditions
 
     public List<int> CreateRandomSequence(int n, int k) //n, number of elements; k, length of the required vector
     {
@@ -785,7 +823,7 @@ public class MainTask : MonoBehaviour
 
 #endregion
 
-    #region Manage targets
+    #region Targets
 
     private void LoadPositionsFromCSV(List<Vector3> target_positions)
     {
@@ -873,7 +911,7 @@ public class MainTask : MonoBehaviour
     private void showTargets(GameObject[] targets)
     {
 
-        // Randomize which balls to show -------------------------------------------------------------------------------->> CHANGE
+        // Randomize which balls to show
         int i = 0;
         int row = targets.Length;
 
@@ -949,7 +987,7 @@ public class MainTask : MonoBehaviour
 
     #endregion
 
-    #region Manage black marker
+    #region Black marker
 
     private void CreateMarkerBlack(GameObject markerObj, Camera Camera)
     {
@@ -1025,5 +1063,7 @@ public class MainTask : MonoBehaviour
 
         return false;
     }
+
+    #endregion
 
 }

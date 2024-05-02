@@ -5,7 +5,7 @@ using System;
 public class Ardu : MonoBehaviour
 {
     arduino ardu;
-    public bool ardu_working = false;
+    public bool ardu_working = true;
     public bool testing = false;
     public string COM = "COM10";
     public float ax1 = float.NaN;
@@ -15,29 +15,38 @@ public class Ardu : MonoBehaviour
 
     void Start()
     {
+        #region Connect to Arduino
+
+        // If not testing mode
         if (!testing)
         {
             try
             {
+                // Establish connection
                 ardu = new arduino(COM, 57600, 80);
             }
             catch
             {
+                // Notify
                 ans = EditorUtility.DisplayDialog("Arduino Connection Error", "Unable to read correctly from the Arduino",
                     "Go ahead in testing mode (no arduino)", "Exit game");
 
-                // You can add a delay here if you want
-                if (ans) { testing = true; }
+                // Set testing mode or quit game
+                if (ans) { testing = true; ardu_working = false; }
                 else { QuitGame(); }
             }
         }
+
+        #endregion
     }
 
-    // Update is called once per frame
     void Update()
     {
+        // If not testing mode
         if (!testing)
         {
+            #region Get coordinates from Arduino
+
             try
             {
                 if (ardu.isWorkingCorrectly())
@@ -51,7 +60,8 @@ public class Ardu : MonoBehaviour
                 {
                     ans = EditorUtility.DisplayDialog("Arduino Connection Error", "Unable to read correctly from the Arduino",
                                         "Go ahead in testing mode (no arduino)", "Exit game");
-                    // You can add a delay here if you want
+
+                    // If desired, add a delay until Arduino connects
                     if (ans) { testing = true; ardu_working = false; }
                     else { QuitGame(); }
                 }
@@ -60,10 +70,13 @@ public class Ardu : MonoBehaviour
             {
                 ans = EditorUtility.DisplayDialog("Arduino Connection Error", "Unable to read correctly from the Arduino",
                                                         "Go ahead in testing mode (no arduino)", "Exit game");
-                // You can add a delay here if you want
+
+                // If desired, add a delay until Arduino connects
                 if (ans) { testing = true; ardu_working = false; }
                 else { QuitGame(); }
             }
+
+            #endregion
         }
         else
         {
@@ -71,6 +84,7 @@ public class Ardu : MonoBehaviour
             ax2 = float.NaN;
         }
 
+        // Manual quit
         if (Input.GetKey("escape"))
         {
             if (!testing && ardu_working)
@@ -82,6 +96,9 @@ public class Ardu : MonoBehaviour
         }
     }
 
+
+    #region Methods 
+
     public void QuitGame()
     {
 #if UNITY_EDITOR
@@ -90,6 +107,7 @@ public class Ardu : MonoBehaviour
         Application.Quit();
     }
 
+    // Send signal to deliver reward
     public void SendReward(int rewardTime)
     {
         if (ardu_working)
@@ -100,7 +118,7 @@ public class Ardu : MonoBehaviour
         reward_counter += 1;
     }
 
-    // TRIGGER 1 BNC 
+    // TRIGGER 1 BNC - Activate OpenEphys (neural recording)
     public void SendStartRecordingOE()
     {
         if (ardu_working && !testing)
@@ -109,7 +127,7 @@ public class Ardu : MonoBehaviour
             Debug.Log("REC OE ON");
         }
     }
-    // TRIGGER 1 BNC
+    // TRIGGER 1 BNC - Deactivate OpenEphys (neural recording)
     public void SendStopRecordingOE()
     {
         if (ardu_working && !testing)
@@ -119,6 +137,7 @@ public class Ardu : MonoBehaviour
         }
     }
 
+    // Send eye data to arduino 
     public void SendPupilLabData(float RightPupilPixel_x, float RightPupilPixel_y, float LeftPupilPixel_x, float LeftPupilPixel_y)
     {
         if (ardu_working && !testing)
@@ -127,4 +146,6 @@ public class Ardu : MonoBehaviour
 
         }
     }
+
+    #endregion
 }

@@ -12,8 +12,10 @@ using PupilLabs;
 /* WHAT TO KNOW FOR THIS SAVER TO WORK
  * - The main script/component of the experiment needs to be named MainTask.
  * - Define in MainTask the same public variables as in region Task general variables.
- * - Here, modify regions DEFINE FRAME DATA and Create Data Writer (method saveAllData) 
- *      to include variables specific to your task (see task_specific_vars)
+ * - Here, modify regions "frame data" and "Save frame data" (method saveAllData) 
+ *      to include variables specific to your task (see task_specific_vars).
+ * - in region Add recording to DB (method saveAllData), add or remove components whose
+ *      public fields you want to register as JSON in the DB.
  */
 
 public class Saver : MonoBehaviour
@@ -101,21 +103,19 @@ public class Saver : MonoBehaviour
         // Manage time: ridiculously low starttime to highlight initial 10 frames
         starttime = System.DateTimeOffset.Now.ToUnixTimeMilliseconds() + 1000000;
 
-        // Seed
-        addObject("Seed", "Seed", main.seed, main.seed, main.seed, main.seed, main.seed, main.seed, main.seed, main.seed, main.seed);
-
     }
 
     void LateUpdate()
     {
-        // Add current frame data
         addDataPerFrame();
 
         if (Input.GetKeyDown("escape"))
         {
-            Application.Quit();
+            QuitGame();
         }
     }
+
+    #region Quit
 
     private void OnApplicationQuit()
     {
@@ -131,7 +131,17 @@ public class Saver : MonoBehaviour
         Application.Quit();
     }
 
-    #region WANT TO SAVE - POPUPS
+    public void QuitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+        Application.Quit();
+    }
+
+    #endregion
+
+    #region Popup before quitting
 
     // Ask user if she wants to save the csv files
     static bool WantsToSaveData()
@@ -161,10 +171,10 @@ public class Saver : MonoBehaviour
             // Ask user if she's sure not to save
             string The_End = ("Everything not saved will be lost.@- Nintendo \"Quit Screen\" message.").Replace("@", System.Environment.NewLine);
             bool sure = EditorUtility.DisplayDialog("ARE YOU SURE?", The_End, "Yes", "No");
-            if (!sure) 
+            if (!sure)
             {
                 // If user not sure, ask again
-                return WantsToSaveVideos(); 
+                return WantsToSaveVideos();
             }
             return wantsToSave;
         }
@@ -173,7 +183,7 @@ public class Saver : MonoBehaviour
 
     #endregion
 
-    #region DEFINE FRAME DATA
+    #region Frame data
 
     // Initiate List to store data
     List<List<string>> PerFrameData = new List<List<string>>();
@@ -225,7 +235,7 @@ public class Saver : MonoBehaviour
     }
     #endregion
 
-    #region DEFINE SUPPLEMENT (OBJECTS) DATA
+    #region Scene objects data
 
     // Initiate List to store data
     List<List<string>> SupplementData = new List<List<string>>();
@@ -296,7 +306,7 @@ public class Saver : MonoBehaviour
         StringBuilder sb_Supplement = new StringBuilder();
         string Line = "";
 
-        #region Create Data writer
+        #region Save frame data
         string general_vars = "Unity_timestamp; Frame; ";
         string task_general_vars = "Trial; Correct Trials; Current_condition; Current_state; Error_type; Reward_count; ";
         // Change task_specific_vars as desired (AddFrameData() method must be changed accordingly)
@@ -321,7 +331,8 @@ public class Saver : MonoBehaviour
         }
         #endregion
 
-        #region Create Supplement writer
+        #region Save objects data
+
         sb_Supplement.AppendLine("Identifier; Type; x; y; z; " +
             "rot_x; rot_y; rot_z; scale_x; scale_y; scale_z; TimeEntry; TimeExit");
 
@@ -336,6 +347,7 @@ public class Saver : MonoBehaviour
             }
             sb_Supplement.AppendLine(Line);
         }
+
         #endregion
 
         #region Add recording to the DB
@@ -369,13 +381,4 @@ public class Saver : MonoBehaviour
  
         #endregion
     }
-
-    public void QuitGame()
-    {
-#if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
-#endif
-        Application.Quit();
-    }
-
 }
