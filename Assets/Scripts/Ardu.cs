@@ -5,8 +5,8 @@ using System;
 public class Ardu : MonoBehaviour
 {
     arduino ardu;
-    public bool ardu_working = true;
-    public bool testing = false;
+    bool ardu_working = true;
+    bool testing = false;
     public string COM = "COM10";
     public float ax1 = float.NaN;
     public float ax2 = float.NaN;
