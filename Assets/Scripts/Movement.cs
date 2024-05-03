@@ -68,20 +68,20 @@ public class Movement : MonoBehaviour
             CollisionTime += Time.deltaTime;
         }
 
-        // In case of inverted axes
-        arduX = x_inversion * experiment.GetComponent<Ardu>().ax1;
-        arduY = y_inversion * experiment.GetComponent<Ardu>().ax2;
-
         // Initialize vars to reassign ardu vars in case they are NaN
         var arduX_notNaN = arduX;
         var arduY_notNaN = arduY;
 
-        // Set ardu vars to 0 to do operations because NaN is "Not a Number"
+        // Set Ardu vars to 0 to do operations because NaN is "Not a Number"
         if (float.IsNaN(arduX) && float.IsNaN(arduY))
         {
             arduX_notNaN = (int)0;
             arduY_notNaN = (int)0;
         }
+
+        // In case of inverted axes
+        arduX_notNaN = x_inversion * arduX_notNaN;
+        arduY_notNaN = y_inversion * arduY_notNaN;
 
         // Player moves
         if (Input.anyKey || arduX_notNaN != 0 || arduY_notNaN != 0)

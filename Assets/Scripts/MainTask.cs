@@ -527,28 +527,18 @@ public class MainTask : MonoBehaviour
 
                 if (player.GetComponent<Movement>().HasCollided) // If collision happened
                 {
-                    // Check if collided object is the correct one
-                    if (player.GetComponent<Movement>().CollidedObject.transform.position == CorrectTargetCurrentPosition)
+                    // Change target material
+                    for (int i = 0; i < targets.Length; i++)
                     {
-                        // Change target material
-                        for (int i = 0; i < targets.Length; i++)
+                        if (targets[i].name == player.GetComponent<Movement>().CollidedObject.name)
                         {
-                            if (targets[i].name == player.GetComponent<Movement>().CollidedObject.name)
-                            {
-                                changeTargetMaterial(targets[i], final_grey);
-                            }
-
+                            changeTargetMaterial(targets[i], final_grey);
                         }
 
-                        // Go to second RT
-                        current_state = 5;
-                    }
-                    else
-                    {
-                        error_state = $"ERR: Selected target at {player.GetComponent<Movement>().CollidedObject.transform.position} but correct position: {CorrectTargetCurrentPosition}";
-                        current_state = -99;
                     }
 
+                    // Go to second RT
+                    current_state = 5;
                 }
 
                 #endregion
@@ -583,7 +573,17 @@ public class MainTask : MonoBehaviour
                 // MEF stops moving
                 if (!isMoving)
                 {
-                    current_state = 99;
+                    // Check if collided object is the correct one
+                    if (player.GetComponent<Movement>().CollidedObject.transform.position == CorrectTargetCurrentPosition)
+                    {
+                        // Correct target, go to reward
+                        current_state = 99;
+                    }
+                    else
+                    {
+                        error_state = $"ERR: Selected target at {player.GetComponent<Movement>().CollidedObject.transform.position} but correct position: {CorrectTargetCurrentPosition}";
+                        current_state = -99;
+                    }
                 }
 
                 // If player exits the collision (i.e. contact time lower than reaction time)

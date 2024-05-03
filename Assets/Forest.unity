@@ -1045,6 +1045,7 @@ MonoBehaviour:
   trials_lose: 0
   trials_for_target: 
   trials_for_cond: 1
+  current_state: 0
   condition_list: 
   file_name_positions: 9_balls_positions
   target_positions: []
@@ -1072,8 +1073,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d762135f370c81459d7e16c3841f003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ardu_working: 0
-  testing: 0
   COM: COM5
   ax1: 0
   ax2: 0
@@ -1792,7 +1791,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1913868724617376015}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 980d34c50a6ca594e9711aa1902f5509, type: 3}
   m_Name: 
@@ -1937,13 +1936,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f560030cd00efe840a2078f3943f6c2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  presstime: 0
   speed: 2.5
-  reverse_Xaxis: 0
-  reverse_Yaxis: 0
   restrict_horizontal: 1
   restrict_backwards: 1
   restrict_forwards: 1
-  presstime: 0
+  reverse_Xaxis: 0
+  reverse_Yaxis: 0
 --- !u!4 &1913868726121276997
 Transform:
   m_ObjectHideFlags: 0
@@ -2096,7 +2095,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1913868726121276998}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 980d34c50a6ca594e9711aa1902f5509, type: 3}
   m_Name: 
@@ -2272,7 +2271,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1913868726606073930}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 980d34c50a6ca594e9711aa1902f5509, type: 3}
   m_Name: 
