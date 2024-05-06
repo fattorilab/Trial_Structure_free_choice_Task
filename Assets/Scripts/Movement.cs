@@ -25,8 +25,8 @@ public class Movement : MonoBehaviour
     [System.NonSerialized] public bool keypressed = false;
     
     // Axes inversion
-    public bool reverse_Xaxis;
-    public bool reverse_Yaxis;
+    public bool reverse_Xaxis = false;
+    public bool reverse_Yaxis = false;
     int x_inversion = 1;
     int y_inversion = 1;
 
@@ -52,7 +52,7 @@ public class Movement : MonoBehaviour
         // GameObjects
         rb = GetComponent<Rigidbody>();
         target = GameObject.Find("Target");
-        experiment = GameObject.Find("experiment");
+        experiment = GameObject.Find("Experiment");
 
         // In case of inverted axes
         if (reverse_Xaxis) { x_inversion = -1; }
@@ -69,6 +69,8 @@ public class Movement : MonoBehaviour
         }
 
         // Initialize vars to reassign ardu vars in case they are NaN
+        arduX = x_inversion * experiment.GetComponent<Ardu>().ax1;
+        arduY = y_inversion * experiment.GetComponent<Ardu>().ax2;
         var arduX_notNaN = arduX;
         var arduY_notNaN = arduY;
 
@@ -78,10 +80,6 @@ public class Movement : MonoBehaviour
             arduX_notNaN = (int)0;
             arduY_notNaN = (int)0;
         }
-
-        // In case of inverted axes
-        arduX_notNaN = x_inversion * arduX_notNaN;
-        arduY_notNaN = y_inversion * arduY_notNaN;
 
         // Player moves
         if (Input.anyKey || arduX_notNaN != 0 || arduY_notNaN != 0)

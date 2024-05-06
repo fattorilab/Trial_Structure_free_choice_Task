@@ -64,7 +64,6 @@ public class Ardu : MonoBehaviour
             {
                 if (ardu.isWorkingCorrectly())
                 {
-                    ardu_working = true;
                     ax1 = ardu.getX();
                     ax2 = -ardu.getY();
 

@@ -255,6 +255,11 @@ public class MainTask : MonoBehaviour
             // Send START trigger
             ardu.SendStartRecordingOE();
 
+            // Disable movement
+            player.GetComponent<Movement>().restrict_backwards = 0;
+            player.GetComponent<Movement>().restrict_forwards = 0;
+            player.GetComponent<Movement>().restrict_horizontal = 0;
+
             first_frame = false;
         }
 
@@ -276,14 +281,6 @@ public class MainTask : MonoBehaviour
                     current_state = -1;
                 }
 
-                if (current_state == -1)
-                {
-                    // Disable movement
-                    player.GetComponent<Movement>().restrict_backwards = 0;
-                    player.GetComponent<Movement>().restrict_forwards = 0;
-                    player.GetComponent<Movement>().restrict_horizontal = 0;
-                }
-
                 break;
 
             case -1: // INTERTRIAL
@@ -299,10 +296,10 @@ public class MainTask : MonoBehaviour
 
                     current_condition = -1;
 
-                    // Switch ON black pixels objects
-                    showMarkerBlack(markerObject_M);
-                    showMarkerBlack(markerObject_R);
-                    showMarkerBlack(markerObject_L);
+                    // Switch ON black pixels objects (but save to csv only one)
+                    showMarkerBlack(markerObject_M, true);
+                    showMarkerBlack(markerObject_R, false);
+                    showMarkerBlack(markerObject_L, false);
 
                     //Beginning routine
                     lastevent = Time.time;
@@ -325,10 +322,10 @@ public class MainTask : MonoBehaviour
                     // Move to state 0
                     current_state = 0;
 
-                    // Switch OFF black pixels objects
-                    hideMarkerBlack(markerObject_M);
-                    hideMarkerBlack(markerObject_R);
-                    hideMarkerBlack(markerObject_L);
+                    // Switch OFF black pixels objects (but save to csv only one)
+                    hideMarkerBlack(markerObject_M, true);
+                    hideMarkerBlack(markerObject_R, false);
+                    hideMarkerBlack(markerObject_L, false);
 
                 }
                 #endregion
@@ -872,7 +869,7 @@ public class MainTask : MonoBehaviour
         LoadPositionsFromCSV(target_positions);
 
         // Filter targets based on Target settings ---------------------------------------------------------------------------------------------------------------------------------------------------->> CHANGE 
-        float[] fixed_orientations = { 160, 0, -160, 0, 0, 0, 0, 0, 0 };
+        float[] fixed_orientations = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         if (Target_settings == settingsEnum.All && Target_settings == settingsEnum.RandomThree)
         {
             // Do nothing
@@ -1016,26 +1013,33 @@ public class MainTask : MonoBehaviour
 
     }
 
-    private void showMarkerBlack(GameObject markerObj)
+    private void showMarkerBlack(GameObject markerObj, bool saveOrNot)
     {
         // Set active
         markerObj.SetActive(true);
 
         // // Save marker as soon as becomes visible
         string identifier = markerObj.GetInstanceID().ToString();
-        experiment.GetComponent<Saver>().addObject(identifier, "Black_pixels",
-                        markerObj.transform.position.x, markerObj.transform.position.y, markerObj.transform.position.z,
-                        markerObj.transform.eulerAngles.x, markerObj.transform.eulerAngles.y, markerObj.transform.eulerAngles.z,
-                        markerObj.transform.localScale.x, markerObj.transform.localScale.y, markerObj.transform.localScale.z);
+
+        if (saveOrNot)
+        {
+            experiment.GetComponent<Saver>().addObject(identifier, "Black_pixels",
+                markerObj.transform.position.x, markerObj.transform.position.y, markerObj.transform.position.z,
+                markerObj.transform.eulerAngles.x, markerObj.transform.eulerAngles.y, markerObj.transform.eulerAngles.z,
+                markerObj.transform.localScale.x, markerObj.transform.localScale.y, markerObj.transform.localScale.z);
+        }
     }
 
-    private void hideMarkerBlack(GameObject markerObj)
+    private void hideMarkerBlack(GameObject markerObj, bool saveOrNot)
     {
         // Set inactive
         markerObj.SetActive(false);
 
         // Save marker end when it stops being visible
-        GetComponent<Saver>().addObjectEnd(markerObj.GetInstanceID().ToString());
+        if (saveOrNot)
+        {
+            GetComponent<Saver>().addObjectEnd(markerObj.GetInstanceID().ToString());
+        }
 
     }
 

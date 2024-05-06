@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.59517413, g: 0.68075246, b: 0.7527039, a: 1}
+  m_IndirectSpecularColor: {r: 0.59517455, g: 0.6807535, b: 0.75270545, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1036,7 +1036,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MEF: ciuffa
-  path_to_data: C:\Users\edoar\Documents\Fattori_lab\test_data_folder
+  path_to_data: C:\Users\admin\Desktop\Registrazioni_VR_FAKE
   seed: 1
   starttime: 0
   frame_number: 0
@@ -1073,7 +1073,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d762135f370c81459d7e16c3841f003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  COM: COM5
+  COM: COM11
   ax1: 0
   ax2: 0
   reward_counter: 0
@@ -2271,7 +2271,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1913868726606073930}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 980d34c50a6ca594e9711aa1902f5509, type: 3}
   m_Name: 
