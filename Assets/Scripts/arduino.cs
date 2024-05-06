@@ -8,15 +8,36 @@ using System.Linq;
 
  public class arduino
 {
-    SerialPort sp; // Declare a SerialPort object to communicate with the Arduino
-    List<float> lastXValues = new List<float>(); // List to store the last X values received from the Arduino
-    List<float> lastYValues = new List<float>(); // List to store the last Y values received from the Arduino
-    int COMspeed; // The speed (in baud rate) of the COM port communication
-    string COM; // The COM port to use for communication
-    public int JSdeadzone; // The deadzone for the joystick
-    Thread thread; // A separate thread to handle the joystick sampling
-    bool stopThread; // A flag to indicate when to stop the thread
-    float lastSampleTime; // The time of the last sample
+    #region Variables Declaration
+
+    // Declare a SerialPort object to communicate with the Arduino
+    SerialPort sp;
+
+    // List to store the last X values received from the Arduino
+    List<float> lastXValues = new List<float>();
+
+    // List to store the last Y values received from the Arduino
+    List<float> lastYValues = new List<float>();
+
+    // The speed (in baud rate) of the COM port communication
+    int COMspeed;
+
+    // The COM port to use for communication
+    string COM;
+
+    // The deadzone for the joystick
+    public int JSdeadzone;
+
+    // A separate thread to handle the joystick sampling
+    Thread thread;
+
+    // A flag to indicate when to stop the thread
+    bool stopThread;
+
+    // The time of the last sample
+    float lastSampleTime;
+
+    #endregion
 
     public arduino(string _COM, int _COMspeed, int _JSdeadzone)
     {

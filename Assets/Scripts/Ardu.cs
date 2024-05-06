@@ -4,14 +4,27 @@ using System;
 
 public class Ardu : MonoBehaviour
 {
+    #region Variables Declaration
+
+    // GameObject
     arduino ardu;
+
+    // Connection bools
+    private bool ans = false;
     bool ardu_working = true;
     bool testing = false;
+
+    // Port
     public string COM = "COM10";
+
+    // Axes
     public float ax1 = float.NaN;
     public float ax2 = float.NaN;
+
+    // Reward counter
     public int reward_counter;
-    private bool ans = false;
+
+    #endregion
 
     void Start()
     {
