@@ -1035,32 +1035,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23250581479892f43b4af8e1e4923187, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MEF: ciuffa
-  path_to_data: C:\Users\admin\Desktop\Registrazioni_VR_FAKE
+  MEF: lisca
+  path_to_data: C:\Users\admin\Desktop\Registrazioni_VR
   seed: 1
   starttime: 0
   frame_number: 0
+  RewardLength: 50
   reward_counter: 0
   trials_win: 0
   trials_lose: 0
   trials_for_target: 
-  trials_for_cond: 1
+  trials_for_cond: 10
   current_state: 0
   condition_list: 
   file_name_positions: 9_balls_positions
   target_positions: []
-  Target_settings: 3
+  Target_settings: 0
   CorrectTargetCurrentPosition: {x: 0, y: 0, z: 0}
   FREE_timing:
   - 1
   DELAY_timing:
+  - 0.5
   - 1
+  - 1.5
+  - 2
+  - 2.5
   RT_timing:
-  - 5
-  BASELINE_duration: 1
+  - 1
+  BASELINE_duration: 0.5
   INTERTRIAL_duration: 1
-  MOVEMENT_maxduration: 10
-  second_RT_maxduration: 2
+  MOVEMENT_maxduration: 30
+  second_RT_maxduration: 1
 --- !u!114 &1239289646
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1672,7 +1677,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 120
+  field of view: 60
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -1938,9 +1943,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   presstime: 0
   speed: 2.5
-  restrict_horizontal: 1
-  restrict_backwards: 1
-  restrict_forwards: 1
+  allow_horizontal: 1
+  allow_backwards: 1
+  allow_forwards: 1
   reverse_Xaxis: 0
   reverse_Yaxis: 0
 --- !u!4 &1913868726121276997
@@ -2010,7 +2015,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 120
+  field of view: 60
   orthographic: 0
   orthographic size: 5
   m_Depth: 0

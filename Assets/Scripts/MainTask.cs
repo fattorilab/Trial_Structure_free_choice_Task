@@ -61,8 +61,8 @@ public class MainTask : MonoBehaviour
     #region Reward info
 
     [Header("Reward")]
-    public static int RewardLength = 50;
-    [System.NonSerialized] private float RewardLength_in_sec = RewardLength / 1000f;
+    public int RewardLength = 50;
+    private float RewardLength_in_sec;
     public int reward_counter = 0;
 
     #endregion
@@ -245,7 +245,7 @@ public class MainTask : MonoBehaviour
     void Update()
     {
         frame_number++;
-
+        RewardLength_in_sec = RewardLength / 1000f;
         // Start on first operating frame
         if (first_frame) 
         {
@@ -256,9 +256,9 @@ public class MainTask : MonoBehaviour
             ardu.SendStartRecordingOE();
 
             // Disable movement
-            player.GetComponent<Movement>().restrict_backwards = 0;
-            player.GetComponent<Movement>().restrict_forwards = 0;
-            player.GetComponent<Movement>().restrict_horizontal = 0;
+            player.GetComponent<Movement>().allow_backwards = 0;
+            player.GetComponent<Movement>().allow_forwards = 0;
+            player.GetComponent<Movement>().allow_horizontal = 0;
 
             first_frame = false;
         }
@@ -358,9 +358,9 @@ public class MainTask : MonoBehaviour
                     // Prepare everything for next trial
 
                     // Enable movement
-                    player.GetComponent<Movement>().restrict_backwards = 1;
-                    player.GetComponent<Movement>().restrict_forwards = 1;
-                    player.GetComponent<Movement>().restrict_horizontal = 1;
+                    player.GetComponent<Movement>().allow_backwards = 1;
+                    player.GetComponent<Movement>().allow_forwards = 1;
+                    player.GetComponent<Movement>().allow_horizontal = 1;
 
                     // Choose the correct target
                     current_condition = condition_list[0];
@@ -768,9 +768,9 @@ public class MainTask : MonoBehaviour
         player_rb.rotation = Quaternion.identity;
 
         // Disable player movement 
-        player.GetComponent<Movement>().restrict_backwards = 0;
-        player.GetComponent<Movement>().restrict_forwards = 0;
-        player.GetComponent<Movement>().restrict_horizontal = 0;
+        player.GetComponent<Movement>().allow_backwards = 0;
+        player.GetComponent<Movement>().allow_forwards = 0;
+        player.GetComponent<Movement>().allow_horizontal = 0;
     }
 
     #endregion

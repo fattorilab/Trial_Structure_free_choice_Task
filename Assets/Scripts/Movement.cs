@@ -19,9 +19,9 @@ public class Movement : MonoBehaviour
     float arduY = 0;
 
     // Control movement vars
-    public float restrict_horizontal = 1;
-    public float restrict_backwards = 1;
-    public float restrict_forwards = 1;
+    public float allow_horizontal = 1;
+    public float allow_backwards = 1;
+    public float allow_forwards = 1;
     [System.NonSerialized] public bool keypressed = false;
     
     // Axes inversion
@@ -90,19 +90,19 @@ public class Movement : MonoBehaviour
 
             // Horizontal (i.e. rotation) movement
             CamRotation = transform.localEulerAngles;
-            CamRotation.y += Input.GetAxis("Horizontal") * Time.deltaTime * restrict_horizontal * 40 * speed;
-            CamRotation.y += (arduX_notNaN / 512f) * Time.deltaTime * restrict_horizontal * 40 * speed;
+            CamRotation.y += Input.GetAxis("Horizontal") * Time.deltaTime * allow_horizontal * 40 * speed;
+            CamRotation.y += (arduX_notNaN / 512f) * Time.deltaTime * allow_horizontal * 40 * speed;
             transform.localEulerAngles = CamRotation;
 
             // Vertical (i.e. forward/backward) movement
             Vector3 moveVector = ((transform.rotation * Camera.main.transform.localRotation) * Vector3.forward * Input.GetAxis("Vertical") * 4) + ((transform.rotation * Camera.main.transform.localRotation) * Vector3.forward * (arduY_notNaN / 512f) * 4);
             if (Input.GetAxis("Vertical") > 0 || arduY_notNaN > 0) //
             {
-                rb.MovePosition(transform.position + Vector3.Normalize(moveVector) * speed * restrict_forwards * Time.deltaTime);
+                rb.MovePosition(transform.position + Vector3.Normalize(moveVector) * speed * allow_forwards * Time.deltaTime);
             }
             else //if (Input.GetAxis("Vertical") < 0 || arduY_notNaN < 0)
             {
-                rb.MovePosition(transform.position + Vector3.Normalize(moveVector) * speed * restrict_backwards * Time.deltaTime); // if backwards is restricted (0),everything is set to 0
+                rb.MovePosition(transform.position + Vector3.Normalize(moveVector) * speed * allow_backwards * Time.deltaTime); // if backwards is restricted (0),everything is set to 0
             }
 
             #endregion
