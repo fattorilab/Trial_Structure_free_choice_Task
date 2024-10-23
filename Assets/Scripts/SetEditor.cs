@@ -22,7 +22,7 @@ public class SetEditor : MonoBehaviour
     {
         if (!started)
         {
-            SetGameView(0);
+            SetGameView(1); // option 1 is 16:9 aspect
             started = true;
         }
     }

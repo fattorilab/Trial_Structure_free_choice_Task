@@ -1,0 +1,16 @@
+{
+    "name": "FFmpegOut",
+    "rootNamespace": "",
+    "references": [
+        "GUID:3449fda615babc847b6d946c6e7dd808"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

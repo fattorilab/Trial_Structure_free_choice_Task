@@ -15,8 +15,8 @@ TagManager:
   - Rock3
   - Rock4
   - Rock5
-  - LeftCamera
-  - RightCamera
+  - Left_Cam
+  - Right_Cam
   layers:
   - Default
   - TransparentFX

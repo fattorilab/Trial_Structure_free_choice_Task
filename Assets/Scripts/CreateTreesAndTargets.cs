@@ -1,10 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class CreateTreesAndTargets : MonoBehaviour
 {
-    GameObject exp;
+    public GameObject experiment;
+    public Saver saver;
 
     public GameObject tree1;
     public GameObject tree2;
@@ -17,68 +20,77 @@ public class CreateTreesAndTargets : MonoBehaviour
     void Start()
     {
         System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
-        exp = GameObject.Find("Experiment");
+        experiment = GameObject.Find("Experiment");
+        saver = experiment.GetComponent<Saver>();
+         
         createGreenery();
     }
 
     public void createGreenery()
     {
+
         for (int i = 0; i < 2; i++) //48 + 8 obj /before 45 + 9
         {
-            createOneObject(tree1, "Obstacle"); //Distraktor
-            createOneObject(tree2, "Obstacle"); //Distraktor
-            createOneObject(tree3, "Obstacle"); //Distraktor
-            createOneObject(tree1, "Obstacle"); //Distraktor
-            createOneObject(tree2, "Obstacle"); //Distraktor
-            createOneObject(tree3, "Obstacle"); //Distraktor
+            createAndSaveObject(tree1, "Obstacle"); //Distraktor
+            createAndSaveObject(tree2, "Obstacle"); //Distraktor
+            createAndSaveObject(tree3, "Obstacle"); //Distraktor
+            createAndSaveObject(tree1, "Obstacle"); //Distraktor
+            createAndSaveObject(tree2, "Obstacle"); //Distraktor
+            createAndSaveObject(tree3, "Obstacle"); //Distraktor
 
-            createOneObject(tree1, "Obstacle"); //Distraktor
-            createOneObject(tree2, "Obstacle"); //Distraktor
-            createOneObject(tree3, "Obstacle"); //Distraktor
-            createOneObject(tree1, "Obstacle"); //Distraktor
-            createOneObject(tree2, "Obstacle"); //Distraktor
-            createOneObject(tree3, "Obstacle"); //Distraktor
+            createAndSaveObject(tree1, "Obstacle"); //Distraktor
+            createAndSaveObject(tree2, "Obstacle"); //Distraktor
+            createAndSaveObject(tree3, "Obstacle"); //Distraktor
+            createAndSaveObject(tree1, "Obstacle"); //Distraktor
+            createAndSaveObject(tree2, "Obstacle"); //Distraktor
+            createAndSaveObject(tree3, "Obstacle"); //Distraktor
 
-            createOneObject(tree1, "Obstacle"); //Distraktor
-            createOneObject(tree2, "Obstacle"); //Distraktor
-            createOneObject(tree3, "Obstacle"); //Distraktor
-            createOneObject(tree1, "Obstacle"); //Distraktor
-            createOneObject(tree2, "Obstacle"); //Distraktor
-            createOneObject(tree3, "Obstacle"); //Distraktor
+            createAndSaveObject(tree1, "Obstacle"); //Distraktor
+            createAndSaveObject(tree2, "Obstacle"); //Distraktor
+            createAndSaveObject(tree3, "Obstacle"); //Distraktor
+            createAndSaveObject(tree1, "Obstacle"); //Distraktor
+            createAndSaveObject(tree2, "Obstacle"); //Distraktor
+            createAndSaveObject(tree3, "Obstacle"); //Distraktor
 
-            createOneObject(tree1, "Obstacle"); //Distraktor
-            createOneObject(tree2, "Obstacle"); //Distraktor
-            createOneObject(tree3, "Obstacle"); //Distraktor
-            createOneObject(tree1, "Obstacle"); //Distraktor
-            createOneObject(tree2, "Obstacle"); //Distraktor
-            createOneObject(tree3, "Obstacle"); //Distraktor
+            createAndSaveObject(tree1, "Obstacle"); //Distraktor
+            createAndSaveObject(tree2, "Obstacle"); //Distraktor
+            createAndSaveObject(tree3, "Obstacle"); //Distraktor
+            createAndSaveObject(tree1, "Obstacle"); //Distraktor
+            createAndSaveObject(tree2, "Obstacle"); //Distraktor
+            createAndSaveObject(tree3, "Obstacle"); //Distraktor
 
-            /*createOneObject(lowlevel, "LowTarget");
-            createOneObject(midlevel, "MidTarget");
-            createOneObject(highlevel, "HighTarget");
-            createOneObject(doubleobject, "DoubleTarget");*/
+            /*createAndSaveObject(lowlevel, "LowTarget");
+            createAndSaveObject(midlevel, "MidTarget");
+            createAndSaveObject(highlevel, "HighTarget");
+            createAndSaveObject(doubleobject, "DoubleTarget");*/
         }
 
-        saveObjects();
     }
 
 
-    void createOneObject(GameObject Prefab, string type)
+    void createAndSaveObject(GameObject Prefab, string type)
     {
-        Vector3 pos = new Vector3(Random.Range(-25f, 25f), 0, Random.Range(-25f, 25f));
-        GameObject newObject = Instantiate(Prefab, transform.position + pos, Quaternion.Euler(0, Random.Range(-180f, 180f), 0), transform);
+        Vector3 pos = new Vector3(UnityEngine.Random.Range(-25f, 25f), 0, UnityEngine.Random.Range(-25f, 25f));
+        GameObject newObject = Instantiate(Prefab, transform.position + pos, Quaternion.Euler(0, UnityEngine.Random.Range(-180f, 180f), 0), transform);
         newObject.tag = type;
-    }
 
-    void saveObjects()
-    {
-        foreach (Transform child in transform)
-        {
-            if (child.name != "Ground")
-            {
-                exp.GetComponent<Saver>().addObject(child.GetInstanceID().ToString(), child.transform.position.x, child.transform.position.z, child.transform.eulerAngles.y, child.tag);
-            }
-        }
+        Vector3 position = newObject.transform.position;
+        Vector3 rotation = newObject.transform.eulerAngles;
+        Vector3 scale = newObject.transform.localScale;
+
+        saver.addObject(
+            newObject.GetInstanceID().ToString(),
+            type,
+            position[0],
+            position[1],
+            position[2],
+            rotation[0],
+            rotation[1],
+            rotation[2],
+            scale[0],
+            scale[1],
+            scale[2]
+            );
     }
 
     public void deleteGreenery()
@@ -87,7 +99,7 @@ public class CreateTreesAndTargets : MonoBehaviour
         {
             if (child.name != "Ground")
             {
-                exp.GetComponent<Saver>().addObjectEnd(child.GetInstanceID().ToString());
+                saver.addObjectEnd(child.GetInstanceID().ToString());
                 Destroy(child.gameObject);
             }
         }

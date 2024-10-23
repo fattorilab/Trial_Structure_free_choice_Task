@@ -60,7 +60,10 @@ public class Rocks : MonoBehaviour
         {
             if (child.tag == "Rock5" || child.tag == "Rock4" || child.tag == "Rock3" || child.tag == "Rock2" || child.tag == "Rock1")
             {
-                experiment.GetComponent<Saver>().addObject(child.GetInstanceID().ToString(), child.transform.position.x, child.transform.position.z, child.transform.eulerAngles.y, child.tag);
+                experiment.GetComponent<Saver>().addObject(child.GetInstanceID().ToString(), child.tag,
+                                        child.transform.position.x, child.transform.position.y, child.transform.position.z,
+                                        child.transform.eulerAngles.x, child.transform.eulerAngles.y, child.transform.eulerAngles.z,
+                                        child.transform.localScale.x, child.transform.localScale.y, child.transform.localScale.z); // transform.eulerAngles.y
             }
         }
     }
